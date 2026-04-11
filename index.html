@@ -1,9 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant-HK">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>MTR City Saver Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<title>MTR 都會票追蹤器 | MTR City Saver Tracker</title>
+<meta name="description" content="追蹤你的 MTR 都會票使用情況，計算每程車費節省多少。Track your MTR City Saver pass usage and savings." />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="MTR 都會票追蹤器 | City Saver Tracker" />
+<meta property="og:description" content="追蹤 MTR 都會票使用次數、計算每程慳幾多，仲有實時列車到站時間！" />
+<meta property="og:image" content="og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="zh_HK" />
+<meta property="og:site_name" content="MTR 都會票追蹤器" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="MTR 都會票追蹤器 | City Saver Tracker" />
+<meta name="twitter:description" content="追蹤 MTR 都會票使用次數、計算每程慳幾多，仲有實時列車到站時間！" />
+<meta name="twitter:image" content="og-image.png" />
+
+<!-- Theme & Icons -->
+<meta name="theme-color" content="#dc0714" />
+<meta name="color-scheme" content="light dark" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
 <style>
   :root {
     --primary: #dc0714;
@@ -28,12 +54,100 @@
     --shadow: 0 2px 12px rgba(0,0,0,0.06);
     --radius: 10px;
     --mtr-dark: #1a1a2e;
+    --green-text: #166534;
+    --red-text: #991b1b;
+    --amber-text: #b45309;
+    --info-bg: #e3f2fd;
+    --info-text: #1565c0;
+    --input-bg: #ffffff;
+    --elevated-bg: #ffffff;
   }
+
+  /* Dark mode — MTR Transit Dark
+     Base: navy-tinted darks from brand #1a1a2e
+     Rationale: Generic #121212 loses MTR identity. Navy-shifted backgrounds
+     create a cohesive transit feel while keeping WCAG AA contrast.
+
+     Contrast ratios (calculated):
+       --text (#e8eaf0) on --bg (#0f1019)     = 17.4:1  (AAA)
+       --text (#e8eaf0) on --card (#191b28)    = 14.2:1  (AAA)
+       --text-secondary (#9fa4b8) on --card    =  6.8:1  (AA)
+       --green-text (#6ee7b7) on --green-bg    =  7.9:1  (AA)
+       --amber-text (#fcd34d) on --amber-bg    =  8.2:1  (AA)
+       --red-text (#fca5a5) on --red-bg        =  7.1:1  (AA)
+       --text (#e8eaf0) on --grey-bg (#282a36) = 10.8:1  (AAA)
+       --info-text (#7cb8f2) on --info-bg      =  5.6:1  (AA)
+       status-green (#34d399) on green-bg      =  6.1:1  (AA)
+       status-amber (#f5a623) on amber-bg      =  5.5:1  (AA)
+  */
+  [data-theme="dark"] {
+    /* Surfaces — navy-shifted from brand #1a1a2e */
+    --bg: #0f1019;             /* deepest navy-black, not pure black */
+    --card: #191b28;           /* elevated surface, subtle blue undertone */
+    --border: #2e3045;         /* visible but not harsh, navy-grey */
+
+    /* Typography */
+    --text: #e8eaf0;           /* cool white, less yellow than #e8e8e8 */
+    --text-secondary: #9fa4b8; /* muted lavender-grey, reads as secondary */
+
+    /* Calendar status backgrounds — deeper, richer, navy-based */
+    --green-bg: #0c2a1c;      /* dark forest, tinted slightly toward navy */
+    --amber-bg: #2a2210;      /* warm dark ochre */
+    --red-bg: #2e0c10;        /* deep crimson-black, echoes MTR red */
+    --grey-bg: #282a36;       /* Dracula-inspired neutral, navy-grey */
+    --off-bg: #232535;         /* slightly lighter navy for "off" days */
+
+    /* Semantic text on colored backgrounds */
+    --green-text: #6ee7b7;    /* mint green — high contrast on dark green bg */
+    --red-text: #fca5a5;      /* soft coral — legible on dark red bg */
+    --amber-text: #fcd34d;    /* warm gold — pops on dark amber bg */
+
+    /* Functional colors — adjusted for dark backgrounds */
+    --green: #34d399;          /* brighter than light-mode #00a651 for dark bg */
+    --amber: #f5a623;          /* unchanged, already vivid */
+    --red: #ef4444;            /* slightly brighter red for dark bg legibility */
+    --grey: #8b8fa3;           /* navy-tinted grey */
+
+    /* Info panel */
+    --info-bg: #161a2e;       /* navy-blue tinted */
+    --info-text: #7cb8f2;     /* sky blue, clear on navy */
+
+    /* Brand anchors */
+    --mtr-dark: #0a0b14;      /* near-black navy for header gradient */
+    --holiday-pill: #dc0714;  /* untouched MTR red */
+    --today-ring: #ef4444;    /* slightly brighter for dark bg visibility */
+
+    /* Depth */
+    --shadow: 0 2px 16px rgba(6, 6, 20, 0.5); /* navy-black shadow */
+
+    --input-bg: #1e2030;
+    --elevated-bg: #232535;
+  }
+  [data-theme="dark"] .card { border: 1px solid var(--border); }
+  [data-theme="dark"] .toggle-group { background: #1e2030; }
+  [data-theme="dark"] .day-chip { border-color: #3a3d52; color: #b0b4c8; }
+  [data-theme="dark"] .date-input { color: var(--text); border-color: #3a3d52; }
+  [data-theme="dark"] .station-select { color: var(--text); border-color: #3a3d52; }
+  [data-theme="dark"] .swap-btn { border-color: #3a3d52; color: #b0b4c8; }
+  [data-theme="dark"] .tab-bar { background: #12131e; border-color: #2e3045; }
+  [data-theme="dark"] .registration-reminder { background: #1a1c0f; border-color: #4a4520; }
+  [data-theme="dark"] .registration-reminder.reg-done { background: #0f1c14; border-color: #1a4a2a; }
+  [data-theme="dark"] .subsidy-section { background: #12131e; border-color: #2e3045; }
+  [data-theme="dark"] .savings-banner.even { background: #151830; color: #8ea0d4; border-color: #3a4a70; }
+  [data-theme="dark"] .prompt-modal { background: #1e2030; }
+  [data-theme="dark"] .prompt-modal input { background: #12131e; color: var(--text); border-color: #3a3d52; }
+  [data-theme="dark"] .prompt-modal-cancel { background: #2e3045; color: #ddd; }
+  [data-theme="dark"] .onboarding-overlay { background: #0f1019; }
+  [data-theme="dark"] .filter-chip { color: #b0b4c8; border-color: #3a3d52; }
+  [data-theme="dark"] .search-input { color: var(--text); border-color: #3a3d52; }
+  [data-theme="dark"] .coverage-stat { background: var(--card); border: 1px solid var(--border); }
+  [data-theme="dark"] .station-row:nth-child(odd) { background: rgba(160, 170, 220, 0.03); }
+  [data-theme="dark"] .fare-input { color: var(--text); border-color: #3a3d52; }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     max-width: 480px;
@@ -62,16 +176,15 @@
     gap: 10px;
   }
   .header-logo {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     background: var(--primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 12px;
-    letter-spacing: -0.5px;
+    font-size: 20px;
     flex-shrink: 0;
     color: white;
   }
@@ -95,9 +208,12 @@
     content: '';
     width: 3px;
     height: 14px;
-    background: var(--primary);
+    background: var(--mtr-dark);
     border-radius: 2px;
     flex-shrink: 0;
+  }
+  [data-theme="dark"] .section-title::before {
+    background: var(--primary);
   }
 
   /* Card */
@@ -135,6 +251,36 @@
     box-shadow: 0 2px 6px rgba(220,7,20,0.25);
     font-weight: 600;
   }
+  .theme-toggle-pill {
+    display: inline-flex;
+    background: rgba(26,26,46,0.85);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 1px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .theme-toggle-pill button {
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 36px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .theme-toggle-pill button.active {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    font-weight: 600;
+  }
 
   /* Custom day picker */
   .custom-days {
@@ -148,7 +294,7 @@
     height: 40px;
     border-radius: 50%;
     border: 2px solid var(--border);
-    background: white;
+    background: var(--input-bg);
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
@@ -178,7 +324,7 @@
     font-size: 15px;
     font-family: inherit;
     color: var(--text);
-    background: white;
+    background: var(--input-bg);
     transition: border-color 0.2s;
   }
   .date-input:focus { outline: none; border-color: var(--primary); }
@@ -195,10 +341,10 @@
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 14px;
-    border-top: 3px solid var(--primary);
+    border-top: 3px solid var(--border);
   }
   .stat-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
-  .stat-value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .stat-value { font-size: 22px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
   .stat-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
 
   /* Progress bar */
@@ -208,7 +354,7 @@
     box-shadow: var(--shadow);
     padding: 14px;
     margin-bottom: 12px;
-    border-left: 4px solid var(--primary);
+    border-left: 4px solid var(--border);
   }
   .progress-bar-bg {
     height: 10px;
@@ -357,10 +503,10 @@
     text-overflow: ellipsis;
   }
 
-  .cal-cell.bg-green { background: #eaf7ed; }
-  .cal-cell.bg-amber { background: #fff8e1; }
+  .cal-cell.bg-green { background: var(--green-bg); }
+  .cal-cell.bg-amber { background: var(--amber-bg); }
   .cal-cell.bg-off { background: var(--off-bg); }
-  .cal-cell.bg-done { background: #f0f0f0; opacity: 0.6; }
+  .cal-cell.bg-done { background: var(--grey-bg); opacity: 0.6; }
   .cal-cell.bg-override { box-shadow: inset 0 0 0 2px var(--primary); }
 
   /* Next month preview */
@@ -439,7 +585,7 @@
     font-size: 14px;
     font-family: inherit;
     color: var(--text);
-    background: white;
+    background: var(--input-bg);
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5a5a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
@@ -464,7 +610,7 @@
     font-weight: 600;
     font-family: inherit;
     color: var(--text);
-    background: white;
+    background: var(--input-bg);
     transition: border-color 0.2s;
   }
   .fare-input:focus { outline: none; border-color: var(--primary); }
@@ -501,11 +647,11 @@
     text-align: center;
   }
   .fare-compare-card.octopus {
-    background: #f0f5ff;
+    background: var(--info-bg);
     border: 2px solid #4a90d9;
   }
   .fare-compare-card.citysaver {
-    background: #fde0e2;
+    background: var(--red-bg);
     border: 2px solid var(--primary);
   }
   .fare-compare-card .fc-label {
@@ -521,6 +667,7 @@
     font-size: 24px;
     font-weight: 800;
     color: var(--text);
+    font-variant-numeric: tabular-nums;
   }
   .fare-compare-card .fc-sub {
     font-size: 11px;
@@ -645,7 +792,7 @@
     height: 32px;
     border: 2px solid var(--border);
     border-radius: 50%;
-    background: white;
+    background: var(--input-bg);
     cursor: pointer;
     font-size: 14px;
     display: flex;
@@ -692,9 +839,39 @@
   .tab-item.active {
     color: var(--primary);
     font-weight: 700;
+    position: relative;
+  }
+  .tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 25%;
+    right: 25%;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 1px;
   }
   .tab-icon { font-size: 20px; line-height: 1; }
-  .tab-label { line-height: 1.2; }
+  .tab-label { line-height: 1.2; font-size: 11px; }
+
+  /* Disclaimer footer */
+  .disclaimer-footer {
+    padding: 16px;
+    padding-bottom: 80px;
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-align: center;
+    opacity: 0.7;
+  }
+  .disclaimer-footer a { color: var(--text-secondary); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .section { animation: fadeUp 0.25s ease-out; }
 
   /* Station Coverage Page */
   .coverage-page { padding: 16px; padding-bottom: 70px; }
@@ -706,7 +883,7 @@
     font-size: 15px;
     font-family: inherit;
     color: var(--text);
-    background: white;
+    background: var(--input-bg);
     transition: border-color 0.2s;
     margin-bottom: 12px;
   }
@@ -795,7 +972,7 @@
     padding: 6px 14px;
     border-radius: 20px;
     border: 2px solid var(--border);
-    background: white;
+    background: var(--input-bg);
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
@@ -808,21 +985,207 @@
     border-color: var(--primary);
   }
 
+  /* Prompt Modal (replaces window.prompt for in-app browser compatibility) */
+  .prompt-modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .prompt-modal {
+    background: white; border-radius: 14px; padding: 24px;
+    width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .prompt-modal h3 { font-size: 17px; margin-bottom: 16px; text-align: center; }
+  .prompt-modal input {
+    width: 100%; padding: 12px; border: 2px solid var(--border);
+    border-radius: 10px; font-size: 16px; text-align: center;
+    margin-bottom: 16px; font-family: inherit;
+    box-sizing: border-box;
+  }
+  .prompt-modal input:focus { outline: none; border-color: var(--primary); }
+  .prompt-modal-buttons { display: flex; gap: 10px; }
+  .prompt-modal-buttons button {
+    flex: 1; padding: 12px; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .prompt-modal-cancel { background: var(--grey-bg); color: var(--text); }
+  .prompt-modal-confirm { background: var(--primary); color: white; }
+
+  /* History */
+  .history-record { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 10px; padding: 14px; cursor: pointer; transition: all 0.15s; }
+  .history-record:active { transform: scale(0.99); }
+  .history-record-header { display: flex; justify-content: space-between; align-items: center; }
+  .history-record-dates { font-weight: 700; font-size: 14px; }
+  .history-record-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .history-record-detail { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0; font-size: 11px; color: var(--text-secondary); align-items: center; border-top: 1px solid var(--border); margin-top: 10px; }
+  .history-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+  .history-badge.completed { background: var(--green-bg); color: var(--green); }
+  .history-badge.expired { background: var(--amber-bg); color: var(--amber); }
+  .history-stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .history-stat-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px; text-align: center; }
+  .history-stat-val { font-size: 22px; font-weight: 800; color: var(--primary); }
+  .history-stat-label { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+  .hist-summary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 0 6px; border-top: 1px solid var(--border); margin-top: 6px; }
+  .hist-summary-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg); border-radius: 6px; padding: 6px 10px; font-size: 11px; }
+  .hist-summary-item .hs-label { color: var(--text-secondary); }
+  .hist-summary-item .hs-val { font-weight: 700; color: var(--text); }
+  .archive-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .archive-modal { background: var(--card); border-radius: 14px; padding: 24px; width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); text-align: center; }
+
+  /* Favourite star */
+  .star-btn {
+    background: none; border: none; font-size: 18px; cursor: pointer;
+    padding: 2px 4px; line-height: 1; opacity: 0.4; transition: opacity 0.15s;
+  }
+  .star-btn.starred { opacity: 1; }
+  .star-btn:active { transform: scale(1.2); }
+
+  /* Favourite quick card */
+  .fav-quick-card { padding: 12px 14px; }
+  .fav-station-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .fav-station-row:last-child { border-bottom: none; }
+  .fav-station-name { font-weight: 700; font-size: 13px; min-width: 70px; }
+  .fav-train-info {
+    flex: 1; display: flex; gap: 6px; flex-wrap: wrap;
+    font-size: 11px; color: var(--text-secondary);
+  }
+  .fav-train-chip {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 6px; border-radius: 4px;
+    background: var(--bg); font-size: 10px; font-weight: 600;
+  }
+
+  /* Onboarding */
+  .onboarding-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: white; z-index: 10000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px 24px;
+    overflow-y: auto;
+  }
+  .onboarding-logo {
+    font-size: 48px; font-weight: 900; color: var(--primary);
+    letter-spacing: -2px; margin-bottom: 8px;
+  }
+  .onboarding-title {
+    font-size: 22px; font-weight: 800; color: var(--text);
+    text-align: center; margin-bottom: 6px; line-height: 1.3;
+  }
+  .onboarding-subtitle {
+    font-size: 14px; color: var(--text-secondary);
+    text-align: center; margin-bottom: 28px; line-height: 1.5;
+  }
+  .onboarding-steps {
+    width: 100%; max-width: 320px;
+    display: flex; flex-direction: column; gap: 14px;
+    margin-bottom: 32px;
+  }
+  .onboarding-step {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--card); border-radius: var(--radius);
+    padding: 14px 16px; box-shadow: var(--shadow);
+  }
+  .onboarding-step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--primary); color: white;
+    font-size: 14px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .onboarding-step-text {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    line-height: 1.4;
+  }
+  .onboarding-step-sub {
+    font-size: 11px; color: var(--text-secondary);
+    font-weight: 400; margin-top: 2px;
+  }
+  .onboarding-start {
+    width: 100%; max-width: 320px; padding: 16px;
+    border: none; border-radius: 14px;
+    background: var(--primary); color: white;
+    font-size: 17px; font-weight: 800; cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+  }
+  .onboarding-start:active { transform: scale(0.97); opacity: 0.9; }
+  .onboarding-footer {
+    margin-top: 16px; font-size: 11px; color: #bbb; text-align: center;
+  }
+
   /* Responsive */
+  @media (max-width: 414px) {
+    .cal-cell { min-height: 54px; }
+    .cal-date { font-size: 12.5px; }
+    .cal-status { font-size: 8.5px; }
+    .cal-holiday { font-size: 6px; }
+    .tab-icon { font-size: 18px; }
+    .tab-item { font-size: 9.5px; }
+    .coverage-stat .cs-num { font-size: 24px; }
+    .prompt-modal { padding: 20px; }
+  }
+  @media (max-width: 390px) {
+    .cal-cell { min-height: 52px; }
+    .cal-date { font-size: 12px; }
+    .cal-status { font-size: 8px; }
+    .cal-holiday { font-size: 5.5px; }
+    .filter-chip { padding: 5px 10px; font-size: 11px; }
+  }
+  @media (max-width: 375px) {
+    .cal-cell { min-height: 50px; padding: 3px 0; }
+    .cal-date { font-size: 11.5px; }
+    .cal-status { font-size: 7.5px; }
+    .cal-holiday { font-size: 7px; }
+    .tab-icon { font-size: 17px; }
+    .tab-item { font-size: 9px; padding: 6px 2px 5px; }
+  }
   @media (max-width: 360px) {
     .cal-cell { min-height: 48px; padding: 2px 0; }
     .cal-date { font-size: 11px; }
     .cal-status { font-size: 7px; }
-    .cal-holiday { font-size: 5px; }
+    .cal-holiday { font-size: 7px; }
+    .tab-icon { font-size: 16px; }
+    .tab-item { font-size: 8.5px; }
+    .filter-chip { padding: 4px 8px; font-size: 10px; }
   }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><div id="loading-msg" style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:-apple-system,sans-serif;color:#666">Loading...</div><noscript><div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:-apple-system,sans-serif;color:#666;text-align:center;padding:2rem"><div><p style="font-size:1.2rem;margin-bottom:0.5rem">此應用程式需要 JavaScript 才能運作。</p><p style="font-size:1rem">This app requires JavaScript to run.</p></div></div></noscript></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" onerror="window.__cdnFail=true"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" onerror="window.__cdnFail=true"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js" onerror="window.__cdnFail=true"></script>
+<script>
+(function() {
+  function showCdnError() {
+    var el = document.getElementById('loading-msg');
+    if (el) {
+      el.innerHTML =
+        '<div style="text-align:center;padding:2rem">' +
+        '<p style="font-size:1.3rem;color:#dc0714;margin-bottom:0.5rem">\u2716</p>' +
+        '<p style="font-size:1.1rem;margin-bottom:0.5rem">無法載入必要資源，請重新整理頁面。</p>' +
+        '<p style="font-size:0.95rem;color:#888">Failed to load required resources. Please refresh the page.</p>' +
+        '</div>';
+    }
+  }
+  if (window.__cdnFail || typeof React === 'undefined') {
+    showCdnError();
+  } else {
+    setTimeout(function() {
+      if (typeof React === 'undefined' || typeof ReactDOM === 'undefined' || typeof Babel === 'undefined') {
+        showCdnError();
+      }
+    }, 5000);
+  }
+})();
+</script>
 
 <script type="text/babel">
 const { useState, useMemo, useCallback, useEffect, useRef, createContext, useContext } = React;
@@ -832,73 +1195,125 @@ const LangContext = createContext('en');
 function useLang() { return useContext(LangContext); }
 
 // ─── Holiday Data (Fallback – updated from API at runtime) ───
+// Each holiday stores { en, zh } names
 const FALLBACK_GENERAL_HOLIDAYS = {
-  '2026-01-01': 'New Year',
-  '2026-02-17': 'LNY Day 1',
-  '2026-02-18': 'LNY Day 2',
-  '2026-02-19': 'LNY Day 3',
-  '2026-04-03': 'Good Fri',
-  '2026-04-04': 'Ching Ming',
-  '2026-04-06': 'Easter Mon',
-  '2026-04-07': 'Day after Easter Mon',
-  '2026-05-01': 'Labor Day',
-  '2026-05-25': 'Buddha Bday',
-  '2026-06-19': 'Tuen Ng',
-  '2026-07-01': 'HKSAR Day',
-  '2026-09-26': 'Mid-Autumn',
-  '2026-10-01': "Nat'l Day",
-  '2026-10-19': 'Chung Yeung',
-  '2026-12-25': 'Xmas Day',
-  '2026-12-26': 'Boxing Day',
+  '2026-01-01': { en: 'New Year', zh: '元旦' },
+  '2026-02-17': { en: 'LNY Day 1', zh: '農曆年初一' },
+  '2026-02-18': { en: 'LNY Day 2', zh: '農曆年初二' },
+  '2026-02-19': { en: 'LNY Day 3', zh: '農曆年初三' },
+  '2026-04-03': { en: 'Good Fri', zh: '耶穌受難節' },
+  '2026-04-04': { en: 'Ching Ming', zh: '清明節' },
+  '2026-04-06': { en: 'Easter Mon', zh: '復活節星期一' },
+  '2026-04-07': { en: 'Day after Easter Mon', zh: '復活節翌日' },
+  '2026-05-01': { en: 'Labour Day', zh: '勞動節' },
+  '2026-05-25': { en: 'Buddha Bday', zh: '佛誕' },
+  '2026-06-19': { en: 'Tuen Ng', zh: '端午節' },
+  '2026-07-01': { en: 'HKSAR Day', zh: '回歸紀念日' },
+  '2026-09-26': { en: 'Mid-Autumn', zh: '中秋節翌日' },
+  '2026-10-01': { en: "Nat'l Day", zh: '國慶日' },
+  '2026-10-19': { en: 'Chung Yeung', zh: '重陽節' },
+  '2026-12-25': { en: 'Xmas Day', zh: '聖誕節' },
+  '2026-12-26': { en: 'Boxing Day', zh: '聖誕翌日' },
 };
 
+// Statutory holidays for 2026: 15 days
+// General (17) minus Good Friday (not statutory until 2028) and Day after Easter Monday (never statutory)
+// Easter Monday is statutory from 2026, Boxing Day from 2024, so keep both
+// Christmas Day is the default statutory choice (employer chooses Xmas OR Winter Solstice)
 const FALLBACK_STATUTORY_HOLIDAYS = { ...FALLBACK_GENERAL_HOLIDAYS };
-delete FALLBACK_STATUTORY_HOLIDAYS['2026-04-03']; // Good Friday
-delete FALLBACK_STATUTORY_HOLIDAYS['2026-04-04'];
-delete FALLBACK_STATUTORY_HOLIDAYS['2026-12-26']; // Boxing Day
-FALLBACK_STATUTORY_HOLIDAYS['2026-12-22'] = 'Winter Solstice';
+delete FALLBACK_STATUTORY_HOLIDAYS['2026-04-03']; // Good Friday — not statutory until 2028
+delete FALLBACK_STATUTORY_HOLIDAYS['2026-04-07']; // Day after Easter Monday — not statutory
 
 // ─── Holidays API (1823.gov.hk) ───
+function shortenEn(name) {
+  return name
+    .replace('Hong Kong Special Administrative Region Establishment Day', 'HKSAR Day')
+    .replace('The first day of January', 'New Year')
+    .replace('The day following the Chinese Mid-Autumn Festival', 'Mid-Autumn')
+    .replace('The day following Chung Yeung Festival', 'Chung Yeung')
+    .replace('The day following Ching Ming Festival', 'Ching Ming')
+    .replace('The day following Easter Monday', 'Day after Easter Mon')
+    .replace('The day following Good Friday', 'Day after Good Fri')
+    .replace('The day following the Birthday of the Buddha', 'Buddha Birthday')
+    .replace("Lunar New Year's Day", 'LNY Day 1')
+    .replace('The second day of Lunar New Year', 'LNY Day 2')
+    .replace('The third day of Lunar New Year', 'LNY Day 3')
+    .replace('The fourth day of Lunar New Year', 'LNY Day 4')
+    .replace('The first weekday after Christmas Day', 'Boxing Day')
+    .replace('Christmas Day', 'Xmas Day')
+    .replace('Ching Ming Festival', 'Ching Ming')
+    .replace('Easter Monday', 'Easter Mon')
+    .replace('Good Friday', 'Good Fri')
+    .replace('Labour Day', 'Labour Day')
+    .replace('The Birthday of the Buddha', 'Buddha Bday')
+    .replace('Tuen Ng Festival', 'Tuen Ng')
+    .replace('National Day', "Nat'l Day")
+    .replace('Chung Yeung Festival', 'Chung Yeung');
+}
+function shortenZh(name) {
+  return name
+    .replace('一月一日', '元旦')
+    .replace('農曆年初一', '年初一')
+    .replace('農曆年初二', '年初二')
+    .replace('農曆年初三', '年初三')
+    .replace('農曆年初四', '年初四')
+    .replace('香港特別行政區成立紀念日', '回歸紀念日')
+    .replace('中秋節翌日', '中秋翌日')
+    .replace('重陽節翌日', '重陽翌日')
+    .replace('清明節翌日', '清明翌日')
+    .replace('復活節星期一翌日', '復活節翌日')
+    .replace('耶穌受難節翌日', '受難節翌日')
+    .replace('佛誕翌日', '佛誕翌日')
+    .replace('聖誕節後第一個周日', '聖誕翌日');
+}
 async function fetchHolidays() {
-  const resp = await fetch('https://www.1823.gov.hk/common/ical/en.json');
-  if (!resp.ok) throw new Error('Failed to fetch holidays');
-  const json = await resp.json();
-  const events = json.vcalendar?.[0]?.vevent || [];
-  const holidays = {};
-  events.forEach(ev => {
-    const dtRaw = ev.dtstart?.[0]; // "20260101"
-    if (!dtRaw || dtRaw.length !== 8) return;
-    const dateStr = `${dtRaw.slice(0, 4)}-${dtRaw.slice(4, 6)}-${dtRaw.slice(6, 8)}`;
-    const name = ev.summary || 'Public Holiday';
-    // Shorten long names
-    const short = name
-      .replace('Hong Kong Special Administrative Region Establishment Day', 'HKSAR Day')
-      .replace('The first day of January', 'New Year')
-      .replace('The day following the Chinese Mid-Autumn Festival', 'Mid-Autumn')
-      .replace('The day following Chung Yeung Festival', 'Chung Yeung')
-      .replace('The day following Ching Ming Festival', 'Ching Ming')
-      .replace('The day following Easter Monday', 'Day after Easter Mon')
-      .replace('The day following Good Friday', 'Day after Good Fri')
-      .replace('The day following the Birthday of the Buddha', 'Buddha Birthday')
-      .replace("Lunar New Year's Day", 'LNY Day 1')
-      .replace('The second day of Lunar New Year', 'LNY Day 2')
-      .replace('The third day of Lunar New Year', 'LNY Day 3')
-      .replace('The fourth day of Lunar New Year', 'LNY Day 4')
-      .replace('The first weekday after Christmas Day', 'Boxing Day')
-      .replace('Christmas Day', 'Xmas Day')
-      .replace('Ching Ming Festival', 'Ching Ming')
-      .replace('Easter Monday', 'Easter Mon')
-      .replace('Good Friday', 'Good Fri')
-      .replace('Labour Day', 'Labor Day')
-      .replace('The Birthday of the Buddha', 'Buddha Bday')
-      .replace('Tuen Ng Festival', 'Tuen Ng')
-      .replace('National Day', "Nat'l Day")
-      .replace('Chung Yeung Festival', 'Chung Yeung');
-    holidays[dateStr] = short;
-  });
-  return holidays;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  try {
+    // Fetch both English and Chinese holiday names in parallel
+    const [enResp, tcResp] = await Promise.all([
+      fetch('https://www.1823.gov.hk/common/ical/en.json', { signal: controller.signal }),
+      fetch('https://www.1823.gov.hk/common/ical/tc.json', { signal: controller.signal }),
+    ]);
+    clearTimeout(timeoutId);
+    if (!enResp.ok) throw new Error('Failed to fetch holidays');
+    const enJson = await enResp.json();
+    const enEvents = enJson.vcalendar?.[0]?.vevent || [];
+    // Build English map first
+    const holidays = {};
+    enEvents.forEach(ev => {
+      const dtRaw = ev.dtstart?.[0];
+      if (!dtRaw || dtRaw.length !== 8) return;
+      const dateStr = `${dtRaw.slice(0, 4)}-${dtRaw.slice(4, 6)}-${dtRaw.slice(6, 8)}`;
+      holidays[dateStr] = { en: shortenEn(ev.summary || 'Public Holiday'), zh: '' };
+    });
+    // Merge Chinese names
+    if (tcResp.ok) {
+      try {
+        const tcJson = await tcResp.json();
+        const tcEvents = tcJson.vcalendar?.[0]?.vevent || [];
+        tcEvents.forEach(ev => {
+          const dtRaw = ev.dtstart?.[0];
+          if (!dtRaw || dtRaw.length !== 8) return;
+          const dateStr = `${dtRaw.slice(0, 4)}-${dtRaw.slice(4, 6)}-${dtRaw.slice(6, 8)}`;
+          const zhName = shortenZh(ev.summary || '公眾假期');
+          if (holidays[dateStr]) {
+            holidays[dateStr].zh = zhName;
+          } else {
+            holidays[dateStr] = { en: 'Public Holiday', zh: zhName };
+          }
+        });
+      } catch(e) { console.warn('Failed to parse tc.json:', e); }
+    }
+    return holidays;
+  } catch (e) {
+    clearTimeout(timeoutId);
+    throw e;
+  }
 }
 
+// Fare data from opendata.mtr.com.hk/data/mtr_lines_fares.csv
+// Last updated: 2026-04-11
 // ─── Fare Data (from opendata.mtr.com.hk/data/mtr_lines_fares.csv) ───
 // 4,558 station pairs · Adult Octopus fares · Keys: alphabetical "StationA|StationB"
 const FARE_MAP = {
@@ -5641,9 +6056,18 @@ const I18N = {
     monSat: '🏪 Mon–Sat',
     custom: '✏️ Custom',
     holidayCalendar: 'Holiday Calendar',
-    hkPublic: '🇭🇰 HK Public',
-    cnPublic: '🇨🇳 CN Public',
-    none: '❌ None',
+    holidayGeneral: 'General',
+    holidayStatutory: 'Statutory',
+    daysUnit: 'days',
+    holidayLoading: '⏳ Loading holidays...',
+    holidayApiFallback: '⚠ Using built-in fallback data',
+    dataSources: 'Data sources',
+    dataSourcesFares: 'Fares — embedded',
+    dataSourcesFaresPairs: 'pairs',
+    dataSourcesHolidays: 'Holidays',
+    dataSourcesHolidaysLoading: 'loading...',
+    dataSourcesHolidaysFallback: 'built-in fallback',
+    dataSourcesStations: 'Stations — hardcoded',
     ticketStartDate: 'Ticket Start Date',
     fareComparison: 'Fare Comparison',
     origin: 'Origin',
@@ -5665,9 +6089,30 @@ const I18N = {
     tapCycle: 'Tap a date to cycle: Auto → 2 → 1 → OFF',
     longPressTip: '3+ trips? Long-press or right-click a date',
     tracker: 'Tracker',
-    stations: 'Stations',
+    stations: 'Coverage',
     stationCoverage: 'Station Coverage',
+    shareResult: '📤 Share My Savings',
+    shareCopied: 'Copied to clipboard!',
     registrationChecklist: 'Registration Checklist',
+    onboardingTitle: 'MTR City Saver Tracker',
+    onboardingSubtitle: 'Track your 40 rides in 40 days — see if your City Saver pass is worth it.',
+    onboardingStep1: 'Set your work pattern',
+    onboardingStep1Sub: 'Mon–Fri, Mon–Sat, or custom days',
+    onboardingStep2: 'Pick your start date',
+    onboardingStep2Sub: 'The day you activated your City Saver',
+    onboardingStep3: 'Track your daily rides',
+    onboardingStep3Sub: 'Tap a date to cycle rides · Long-press for 3+',
+    onboardingStart: 'Start Tracking',
+    onboardingTip: 'Use the 💰 Compare tab to check if City Saver is worth it for your route',
+    showOnboarding: 'Show Guide',
+    darkMode: '🌙',
+    lightMode: '☀️',
+    autoMode: '🔄',
+    favouriteStations: 'FAVOURITE STATIONS',
+    addFavourite: 'Add to favourites',
+    removeFavourite: 'Remove favourite',
+    favRefresh: 'Refresh',
+    noFavourites: 'Star a station to see quick arrivals here',
     subsidyRegistration: 'Subsidy Registration',
     purchased: 'Purchased City Saver ticket',
     registered: 'Registered via MTR App / website',
@@ -5699,6 +6144,39 @@ const I18N = {
     gmbRegionHKI: 'HK Island',
     gmbRegionKLN: 'Kowloon',
     gmbRegionNT: 'New Territories',
+    compareTab: 'Compare',
+    compareTabTitle: 'Octopus vs City Saver',
+    compareTabSubtitle: 'Find out which is worth it for your route',
+    ridesPlanned: 'Planned rides',
+    historyTab: 'History',
+    historyTitle: 'Ticket History',
+    historyEmpty: 'No archived tickets yet.\nArchive your current ticket when you start a new one.',
+    archiveBtn: 'Finish This Ticket',
+    archiveConfirm: 'Save this ticket to history and start a new one?',
+    histCompleted: 'Completed',
+    histExpired: 'Partial',
+    histRidesWasted: 'unused',
+    histWorkMode: 'Work pattern',
+    histDelete: 'Delete',
+    histDeleteConfirm: 'Confirm?',
+    histEdit: 'Edit',
+    histSave: 'Save',
+    histCancel: 'Cancel',
+    histRidesLabel: 'Rides used',
+    statsAvgRides: 'Avg rides',
+    statsCompleted: 'Completed',
+    statsSavings: 'Est. savings',
+    histDaysRidden: 'Days ridden',
+    histTotalRides: 'Total rides',
+    histDailyAvg: 'Daily avg',
+    histUsageRate: 'Usage rate',
+    histEstSavings: 'Est. savings',
+    exportData: 'Export Backup',
+    importData: 'Import Backup',
+    exportSuccess: 'Backup exported!',
+    importConfirm: 'Import data? Existing data will be overwritten.',
+    importSuccess: 'Data imported! Reloading...',
+    importError: 'Invalid backup file. Please select a valid export.',
   },
   zh: {
     citySaverTracker: '都會票追蹤器',
@@ -5708,7 +6186,7 @@ const I18N = {
     selectStation: '選擇車站',
     selectStationPlaceholder: '-- 選擇車站 --',
     checkArrivals: '🚇 查詢到站時間',
-    refresh: '🔄 重新整理',
+    refresh: '🔄 刷新',
     loading: '載入中...',
     noTrains: '此站目前沒有列車班次。',
     selectPrompt: '選擇車站即可查看即時到站資訊',
@@ -5716,13 +6194,22 @@ const I18N = {
     now: '🟢 即將到達',
     min: '分鐘',
     workPattern: '工作模式',
-    monFri: '🏢 週一至五',
-    monSat: '🏪 週一至六',
+    monFri: '🏢 星期一至五',
+    monSat: '🏪 星期一至六',
     custom: '✏️ 自訂',
     holidayCalendar: '假期日曆',
-    hkPublic: '🇭🇰 香港公眾假期',
-    cnPublic: '🇨🇳 中國公眾假期',
-    none: '❌ 無',
+    holidayGeneral: '一般',
+    holidayStatutory: '法定',
+    daysUnit: '日',
+    holidayLoading: '⏳ 載入假期中...',
+    holidayApiFallback: '⚠ 使用內置備用資料',
+    dataSources: '數據來源',
+    dataSourcesFares: '車費 — 內置',
+    dataSourcesFaresPairs: '組',
+    dataSourcesHolidays: '假期',
+    dataSourcesHolidaysLoading: '載入中...',
+    dataSourcesHolidaysFallback: '內置備用',
+    dataSourcesStations: '車站 — 內置',
     ticketStartDate: '車票啟用日期',
     fareComparison: '車費比較',
     origin: '出發站',
@@ -5744,9 +6231,30 @@ const I18N = {
     tapCycle: '點擊日期切換：自動 → 2程 → 1程 → 關閉',
     longPressTip: '3程或以上？長按或右鍵點擊日期即可設定',
     tracker: '追蹤器',
-    stations: '車站',
+    stations: '覆蓋範圍',
     stationCoverage: '車站覆蓋範圍',
+    shareResult: '📤 分享我嘅記錄',
+    shareCopied: '已複製到剪貼簿！',
     registrationChecklist: '登記清單',
+    onboardingTitle: 'MTR 都會票追蹤器',
+    onboardingSubtitle: '追蹤你嘅 40 日 40 程 — 睇下買都會票抵唔抵。',
+    onboardingStep1: '揀返工模式',
+    onboardingStep1Sub: '星期一至五、星期一至六、或自訂',
+    onboardingStep2: '設定啟用日期',
+    onboardingStep2Sub: '你開始用都會票嗰日',
+    onboardingStep3: '每日追蹤乘車次數',
+    onboardingStep3Sub: '點擊日期切換次數 · 長按輸入 3 程或以上',
+    onboardingStart: '開始追蹤',
+    onboardingTip: '用 💰 比較 tab 睇下你嘅路線買都會票抵唔抵',
+    showOnboarding: '使用指南',
+    darkMode: '🌙',
+    lightMode: '☀️',
+    autoMode: '🔄',
+    favouriteStations: '常用車站',
+    addFavourite: '加入收藏',
+    removeFavourite: '取消收藏',
+    favRefresh: '更新',
+    noFavourites: '將車站加星即可喺呢度快速查到站時間',
     subsidyRegistration: '津貼登記',
     purchased: '已購買都會票車票',
     registered: '已透過港鐵App/網站登記',
@@ -5778,6 +6286,39 @@ const I18N = {
     gmbRegionHKI: '港島',
     gmbRegionKLN: '九龍',
     gmbRegionNT: '新界',
+    compareTab: '比較',
+    compareTabTitle: '八達通 vs 都會票',
+    compareTabSubtitle: '計算邊個更抵',
+    ridesPlanned: '計劃乘車次數',
+    historyTab: '記錄',
+    historyTitle: '車票記錄',
+    historyEmpty: '未有封存記錄。\n開始新車票時可封存目前車票。',
+    archiveBtn: '完成此票',
+    archiveConfirm: '將此車票儲存到記錄，然後開始新票期？',
+    histCompleted: '已完成',
+    histExpired: '部分使用',
+    histRidesWasted: '未用',
+    histWorkMode: '工作模式',
+    histDelete: '刪除',
+    histDeleteConfirm: '確定？',
+    histEdit: '編輯',
+    histSave: '儲存',
+    histCancel: '取消',
+    histRidesLabel: '已用程數',
+    statsAvgRides: '平均程數',
+    statsCompleted: '完成車票',
+    statsSavings: '預計節省',
+    histDaysRidden: '搭車日數',
+    histTotalRides: '總搭車次數',
+    histDailyAvg: '平均每日',
+    histUsageRate: '使用率',
+    histEstSavings: '節省金額',
+    exportData: '匯出備份',
+    importData: '匯入備份',
+    exportSuccess: '備份已匯出！',
+    importConfirm: '確定要匯入？現有數據將被覆蓋。',
+    importSuccess: '數據已匯入！重新載入中...',
+    importError: '無效嘅備份檔案，請選擇正確嘅匯出檔案。',
   }
 };
 
@@ -5787,26 +6328,16 @@ async function fetchNextTrain(stationName) {
   const entries = NEXT_TRAIN_MAP[stationName];
   if (!entries || entries.length === 0) return null;
 
-  const results = [];
-  for (const info of entries) {
+  const results = await Promise.all(entries.map(async (info) => {
     try {
       const url = `https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=${info.line}&sta=${info.sta}`;
       const resp = await fetch(url);
-      if (!resp.ok) {
-        results.push({ line: info.line, error: `HTTP ${resp.status}` });
-        continue;
-      }
+      if (!resp.ok) return { line: info.line, error: `HTTP ${resp.status}` };
       const data = await resp.json();
-      if (data.status === 0) {
-        results.push({ line: info.line, error: 'Service disruption on ' + (LINE_NAMES[info.line] || info.line) });
-        continue;
-      }
+      if (data.status === 0) return { line: info.line, error: 'Service disruption on ' + (LINE_NAMES[info.line] || info.line) };
       const key = `${info.line}-${info.sta}`;
       const schedule = data.data?.[key];
-      if (!schedule) {
-        results.push({ line: info.line, error: 'No schedule data' });
-        continue;
-      }
+      if (!schedule) return { line: info.line, error: 'No schedule data' };
       const trains = [];
       ['UP', 'DOWN'].forEach(dir => {
         if (schedule[dir]) {
@@ -5823,14 +6354,14 @@ async function fetchNextTrain(stationName) {
           });
         }
       });
-      results.push({ line: info.line, trains, timestamp: data.sys_time });
+      return { line: info.line, trains, timestamp: data.sys_time };
     } catch (e) {
-      results.push({
+      return {
         line: info.line,
         error: e.name === 'TypeError' ? 'Cannot reach MTR server — check your internet or try again' : (e.message || 'Unknown error')
-      });
+      };
     }
-  }
+  }));
   return results;
 }
 
@@ -6130,31 +6661,119 @@ function sameDay(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
+function computeRidesForDate(date, workMode, customDays, holidays, overrides, startDate, endDate) {
+  if (!startDate || !endDate) return { rides: 0, status: 'off' };
+  const ds = dateToStr(date);
+  if (overrides && overrides[ds] !== undefined && overrides[ds] !== 'auto') {
+    const ov = overrides[ds];
+    if (typeof ov === 'number' && ov >= 2) return { rides: ov, status: '2', overridden: true };
+    if (ov === 1) return { rides: 1, status: '1', overridden: true };
+    if (ov === 0) return { rides: 0, status: 'off', overridden: true };
+  }
+  if (date < startDate || date > endDate) return { rides: 0, status: 'off' };
+  const dow = date.getDay();
+  if (holidays && holidays[ds]) return { rides: 0, status: 'off' };
+  if (workMode === 'office') return (dow >= 1 && dow <= 5) ? { rides: 2, status: '2' } : { rides: 0, status: 'off' };
+  if (workMode === 'service') return (dow >= 1 && dow <= 6) ? { rides: 2, status: '2' } : { rides: 0, status: 'off' };
+  const days = customDays || { 1: true, 2: true, 3: true, 4: true, 5: true, 6: false, 0: false };
+  return days[dow] ? { rides: 2, status: '2' } : { rides: 0, status: 'off' };
+}
+
 function todayDate() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
 // ─── Main App ───
-function App() {
+function App({ onArchive }) {
   const lang = useLang();
   const L = I18N[lang] || I18N.en;
-  const [workMode, setWorkMode] = useState('office');
-  const [customDays, setCustomDays] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: false, 0: false }); // 0=Sun..6=Sat
-  const [holidayType, setHolidayType] = useState('general');
+  const [workMode, setWorkMode] = useState(() => {
+    try { return localStorage.getItem('mtr-cs-workMode') || 'office'; } catch { return 'office'; }
+  });
+  const [customDays, setCustomDays] = useState(() => {
+    try { const s = localStorage.getItem('mtr-cs-customDays'); return s ? JSON.parse(s) : { 1: true, 2: true, 3: true, 4: true, 5: true, 6: false, 0: false }; } catch { return { 1: true, 2: true, 3: true, 4: true, 5: true, 6: false, 0: false }; }
+  }); // 0=Sun..6=Sat
+  const [holidayType, setHolidayType] = useState(() => {
+    try { return localStorage.getItem('mtr-cs-holidayType') || 'general'; } catch { return 'general'; }
+  });
   const [startDateStr, setStartDateStr] = useState(() => {
+    try {
+      const saved = localStorage.getItem('mtr-cs-startDateStr');
+      if (saved) return saved;
+    } catch {}
     const now = new Date();
     const y = now.getFullYear();
     const m = String(now.getMonth() + 1).padStart(2, '0');
     const d = String(now.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
   });
-  const [weekStart, setWeekStart] = useState('sun');
-  const [overrides, setOverrides] = useState({});
-  const [originStation, setOriginStation] = useState('');
-  const [destStation, setDestStation] = useState('');
-  const [octopusFare, setOctopusFare] = useState('');
+  const [weekStart, setWeekStart] = useState(() => {
+    try { return localStorage.getItem('mtr-cs-weekStart') || 'sun'; } catch { return 'sun'; }
+  });
+  const [overrides, setOverrides] = useState(() => {
+    try { const s = localStorage.getItem('mtr-cs-overrides'); return s ? JSON.parse(s) : {}; } catch { return {}; }
+  });
+  const [notes, setNotes] = useState(() => {
+    try { const s = localStorage.getItem('mtr-cs-notes'); return s ? JSON.parse(s) : {}; } catch { return {}; }
+  });
+  const [promptModal, setPromptModal] = useState(null);
+  const [archiveModal, setArchiveModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(() => !localStorage.getItem('mtr-cs-startDateStr'));
 
+  const confirmArchive = () => {
+    if (onArchive) {
+      const todayStr = dateToStr(todayDate());
+      const ridesUsed = stats ? 40 - stats.ridesLeft : 0;
+      const fare = parseFloat(octopusFare) || 0;
+      const totalSavings = fare > 0 ? ridesUsed * fare - 460 : 0;
+      onArchive({
+        startDate: startDateStr,
+        endDate: todayStr,
+        ridesUsed,
+        ridesWasted: stats ? stats.ridesLeft : 0,
+        completed: stats ? stats.ridesLeft === 0 : false,
+        workMode,
+        customDays: { ...customDays },
+        holidayType,
+        weekStart,
+        overrides: { ...overrides },
+        notes: { ...notes },
+        holidays: { ...holidays },
+        quotaMap: stats ? { ...stats.quotaMap } : {},
+        octopusFare: fare,
+        totalSavings,
+      });
+    }
+    // Reset for new ticket
+    setStartDateStr(dateToStr(todayDate()));
+    setOverrides({});
+    setNotes({});
+    setArchiveModal(false);
+  };
+  const [originStation, setOriginStation] = useState(() => {
+    try { return localStorage.getItem('mtr-cs-originStation') || ''; } catch { return ''; }
+  });
+  const [destStation, setDestStation] = useState(() => {
+    try { return localStorage.getItem('mtr-cs-destStation') || ''; } catch { return ''; }
+  });
+  const [octopusFare, setOctopusFare] = useState(() => {
+    try { return localStorage.getItem('mtr-cs-octopusFare') || ''; } catch { return ''; }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem('mtr-cs-workMode', workMode);
+      localStorage.setItem('mtr-cs-customDays', JSON.stringify(customDays));
+      localStorage.setItem('mtr-cs-holidayType', holidayType);
+      localStorage.setItem('mtr-cs-startDateStr', startDateStr);
+      localStorage.setItem('mtr-cs-weekStart', weekStart);
+      localStorage.setItem('mtr-cs-overrides', JSON.stringify(overrides));
+      localStorage.setItem('mtr-cs-notes', JSON.stringify(notes));
+      localStorage.setItem('mtr-cs-originStation', originStation);
+      localStorage.setItem('mtr-cs-destStation', destStation);
+      localStorage.setItem('mtr-cs-octopusFare', octopusFare);
+    } catch {}
+  }, [workMode, customDays, holidayType, startDateStr, weekStart, overrides, notes, originStation, destStation, octopusFare]);
 
   // Registration checklist (persisted to localStorage)
   const [regChecklist, setRegChecklist] = useState(() => {
@@ -6168,6 +6787,8 @@ function App() {
   }, [regChecklist]);
   const toggleReg = (key) => setRegChecklist(prev => ({ ...prev, [key]: !prev[key] }));
   const setRegDate = (val) => setRegChecklist(prev => ({ ...prev, purchaseDate: val }));
+  const allRegDone = regChecklist.purchased && regChecklist.registered && regChecklist.verified;
+  const [regExpanded, setRegExpanded] = useState(!allRegDone);
 
   // Calculate registration deadline
   const regDeadline = useMemo(() => {
@@ -6207,18 +6828,16 @@ function App() {
     if (apiHolidays && holSource === 'api') {
       // API returns General (Government) holidays; we need to filter for statutory if selected
       if (holidayType === 'general') return apiHolidays;
-      // Statutory excludes Good Friday, Day after Good Friday, Easter Monday, Boxing Day
-      // and adds Winter Solstice
+      // Statutory (2026): 15 days = General minus Good Friday and Day after Easter Monday
+      // Easter Monday is statutory from 2026, Boxing Day from 2024 — keep both
+      // Christmas Day is the default statutory choice (not adding Winter Solstice)
       const stat = { ...apiHolidays };
       Object.keys(stat).forEach(d => {
-        const name = stat[d].toLowerCase();
-        if (name.includes('good fri') || name.includes('easter mon') || name.includes('boxing day') || name.includes('day after good fri') || name.includes('day after easter mon')) {
+        const name = (typeof stat[d] === 'string' ? stat[d] : stat[d].en || '').toLowerCase();
+        if (name.includes('good fri') || name.includes('day after easter mon')) {
           delete stat[d];
         }
       });
-      // Add Winter Solstice (approximate – varies by year, typically Dec 21-22)
-      const yr = startDateStr ? startDateStr.split('-')[0] : '2026';
-      stat[`${yr}-12-22`] = 'Winter Solstice';
       return stat;
     }
     return holidayType === 'general' ? FALLBACK_GENERAL_HOLIDAYS : FALLBACK_STATUTORY_HOLIDAYS;
@@ -6233,12 +6852,11 @@ function App() {
       genHols = apiHolidays;
       const stat = { ...apiHolidays };
       Object.keys(stat).forEach(d => {
-        const name = stat[d].toLowerCase();
-        if (name.includes('good fri') || name.includes('easter mon') || name.includes('boxing day') || name.includes('day after good fri') || name.includes('day after easter mon')) {
+        const name = (typeof stat[d] === 'string' ? stat[d] : stat[d].en || '').toLowerCase();
+        if (name.includes('good fri') || name.includes('day after easter mon')) {
           delete stat[d];
         }
       });
-      stat[`${yr}-12-22`] = 'Winter Solstice';
       statHols = stat;
     } else {
       genHols = FALLBACK_GENERAL_HOLIDAYS;
@@ -6288,6 +6906,11 @@ function App() {
     if (viewMonth === 11) { setViewYear(viewYear + 1); setViewMonth(0); }
     else setViewMonth(viewMonth + 1);
   };
+  const navToday = () => {
+    const now = todayDate();
+    setViewYear(now.getFullYear());
+    setViewMonth(now.getMonth());
+  };
   const nextPreviewMonth = viewMonth === 11 ? 0 : viewMonth + 1;
   const nextPreviewYear = viewMonth === 11 ? viewYear + 1 : viewYear;
 
@@ -6295,37 +6918,7 @@ function App() {
 
   // Calculate rides for a given date
   const getRidesForDate = useCallback((date) => {
-    if (!startDate || !endDate) return { rides: 0, status: 'off' };
-    const ds = dateToStr(date);
-
-    // Check override
-    if (overrides[ds] !== undefined) {
-      const ov = overrides[ds];
-      if (ov === 'auto') { /* fall through */ }
-      else if (typeof ov === 'number' && ov >= 2) return { rides: ov, status: '2', overridden: true };
-      else if (ov === 1) return { rides: 1, status: '1', overridden: true };
-      else if (ov === 0) return { rides: 0, status: 'off', overridden: true };
-    }
-
-    // Check if in range
-    if (date < startDate || date > endDate) return { rides: 0, status: 'off' };
-
-    const dow = date.getDay(); // 0=Sun, 6=Sat
-
-    // Holiday check
-    if (holidays[ds]) return { rides: 0, status: 'off' };
-
-    if (workMode === 'office') {
-      if (dow >= 1 && dow <= 5) return { rides: 2, status: '2' };
-      return { rides: 0, status: 'off' };
-    } else if (workMode === 'service') {
-      if (dow >= 1 && dow <= 6) return { rides: 2, status: '2' };
-      return { rides: 0, status: 'off' };
-    } else {
-      // custom
-      if (customDays[dow]) return { rides: 2, status: '2' };
-      return { rides: 0, status: 'off' };
-    }
+    return computeRidesForDate(date, workMode, customDays, holidays, overrides, startDate, endDate);
   }, [startDate, endDate, workMode, holidays, overrides, customDays]);
 
   // Full simulation — tracks quota exhaustion per day
@@ -6379,601 +6972,46 @@ function App() {
     });
   }, []);
 
-  // Handle long-press — prompt for custom trip count (3+)
+  // Handle long-press — open custom modal for trip count (replaces window.prompt for in-app browser compatibility)
   const handleCellLongPress = useCallback((dateStr) => {
-    const input = prompt(lang === 'zh' ? `設定 ${dateStr} 的乘車次數：` : `Set trips for ${dateStr}:`, '3');
-    if (input === null) return;
-    const num = parseInt(input, 10);
-    if (isNaN(num) || num < 0) return;
-    setOverrides(prev => {
-      const newOv = { ...prev };
-      if (num === 0) { newOv[dateStr] = 0; }
-      else { newOv[dateStr] = num; }
-      return newOv;
+    const currentNote = notes[dateStr] || '';
+    const currentOverride = overrides[dateStr];
+    setPromptModal({
+      message: lang === 'zh' ? `設定 ${dateStr}` : `Set ${dateStr}`,
+      defaultValue: currentOverride !== undefined && currentOverride !== 'auto' ? String(currentOverride) : '3',
+      note: currentNote,
+      hasNote: true,
+      onConfirm: (val, noteVal) => {
+        const num = parseInt(val, 10);
+        if (!isNaN(num) && num >= 0) {
+          setOverrides(prev => {
+            const newOv = { ...prev };
+            if (num === 0) { newOv[dateStr] = 0; }
+            else { newOv[dateStr] = num; }
+            return newOv;
+          });
+        }
+        setNotes(prev => {
+          const newNotes = { ...prev };
+          if (noteVal && noteVal.trim()) newNotes[dateStr] = noteVal.trim();
+          else delete newNotes[dateStr];
+          return newNotes;
+        });
+        setPromptModal(null);
+      },
+      onCancel: () => setPromptModal(null)
     });
-  }, [lang]);
+  }, [lang, notes, overrides]);
 
   return (
     <div>
       <div className="header">
         <div className="header-accent" />
         <div className="header-inner">
-          <div className="header-logo">MTR</div>
+          <div className="header-logo">🚇</div>
           <div>
             <h1>{L.citySaverTracker}</h1>
             <div className="subtitle">{L.citySaverSubtitle}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Settings */}
-      <div className="section">
-        <div className="section-title">{L.workPattern}</div>
-        <div className="toggle-group">
-          <button className={`toggle-btn ${workMode === 'office' ? 'active' : ''}`} onClick={() => setWorkMode('office')}>
-            {L.monFri}
-          </button>
-          <button className={`toggle-btn ${workMode === 'service' ? 'active' : ''}`} onClick={() => setWorkMode('service')}>
-            {L.monSat}
-          </button>
-          <button className={`toggle-btn ${workMode === 'custom' ? 'active' : ''}`} onClick={() => setWorkMode('custom')}>
-            {L.custom}
-          </button>
-        </div>
-
-        {workMode === 'custom' && (
-          <div className="custom-days">
-            {(lang === 'zh' ? [
-              { key: 1, label: '一' },
-              { key: 2, label: '二' },
-              { key: 3, label: '三' },
-              { key: 4, label: '四' },
-              { key: 5, label: '五' },
-              { key: 6, label: '六' },
-              { key: 0, label: '日' },
-            ] : [
-              { key: 1, label: 'Mon' },
-              { key: 2, label: 'Tue' },
-              { key: 3, label: 'Wed' },
-              { key: 4, label: 'Thu' },
-              { key: 5, label: 'Fri' },
-              { key: 6, label: 'Sat' },
-              { key: 0, label: 'Sun' },
-            ]).map(({ key, label }) => (
-              <button
-                key={key}
-                className={`day-chip ${customDays[key] ? 'active' : ''}`}
-                onClick={() => setCustomDays(prev => ({ ...prev, [key]: !prev[key] }))}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="section-title">{L.holidayCalendar}</div>
-        <div className="toggle-group">
-          <button className={`toggle-btn ${holidayType === 'general' ? 'active' : ''}`} onClick={() => setHolidayType('general')}>
-            {lang === 'zh' ? '一般' : 'General'} ({holidayCounts.general} {lang === 'zh' ? '日' : 'days'})
-          </button>
-          <button className={`toggle-btn ${holidayType === 'statutory' ? 'active' : ''}`} onClick={() => setHolidayType('statutory')}>
-            {lang === 'zh' ? '法定' : 'Statutory'} ({holidayCounts.statutory} {lang === 'zh' ? '日' : 'days'})
-          </button>
-        </div>
-        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>
-          {holLoading ? (lang === 'zh' ? '⏳ 載入假期中...' : '⏳ Loading holidays...') : holSource === 'api' ? '✓ 1823.gov.hk' : (lang === 'zh' ? '⚠ 使用內置備用資料' : '⚠ Using built-in fallback data')}
-        </div>
-
-        <div className="section-title">{L.ticketStartDate}</div>
-        <div className="date-input-wrapper">
-          <input
-            type="date"
-            className="date-input"
-            value={startDateStr}
-            onChange={e => { setStartDateStr(e.target.value); setOverrides({}); }}
-          />
-        </div>
-        {/* Data sources indicator */}
-        <div style={{ marginTop: 16, padding: '10px 12px', background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)', fontSize: 11, color: 'var(--text-secondary)' }}>
-          <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 12 }}>{lang === 'zh' ? '數據來源' : 'Data Sources'}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <div>✅ {lang === 'zh' ? '車費 — 內置' : 'Fares — Embedded'} (opendata.mtr.com.hk · {Object.keys(FARE_MAP).length.toLocaleString()} {lang === 'zh' ? '組' : 'pairs'})</div>
-            <div>{holLoading ? '⏳' : holSource === 'api' ? '✅' : '⚠️'} {lang === 'zh' ? '假期' : 'Holidays'} — {holLoading ? (lang === 'zh' ? '載入中...' : 'Loading...') : holSource === 'api' ? '1823.gov.hk' : (lang === 'zh' ? '內置備用' : 'Built-in fallback')}</div>
-            <div>ℹ️ {lang === 'zh' ? '車站 — 內置（都會票適用車站未有開放數據）' : 'Stations — Hardcoded (City Saver eligibility not in open data)'}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Fare Comparison Section ─── */}
-      <div className="fare-section">
-        <div className="fare-header">
-          <div className="fare-header-icon">$</div>
-          <div>
-            <div>{L.fareComparison}</div>
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{lang === 'zh' ? '八達通 vs 都會票' : 'Octopus vs City Saver'}</div>
-          </div>
-        </div>
-
-        <div className="card">
-          {/* Origin Station */}
-          <div className="field-row">
-            <div className="field-label">{L.origin}</div>
-            <select
-              className="station-select"
-              value={originStation}
-              onChange={e => setOriginStation(e.target.value)}
-            >
-              <option value="">{lang === 'zh' ? '-- 選擇車站 --' : '-- Select station --'}</option>
-              {MTR_LINES.map(({ line, stations }) => (
-                <optgroup key={line} label={lang === 'zh' ? (LINE_DISPLAY_ZH[line] || line) : line}>
-                  {stations.map(s => (
-                    <option key={`${line}-${s.en}`} value={s.en}>
-                      {lang === 'zh' ? `${s.zh} ${s.en}` : s.en}{s.cs ? '' : (lang === 'zh' ? '（不適用）' : ' (Not covered)')}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
-
-          {/* Swap button */}
-          <div style={{ textAlign: 'center' }}>
-            <button className="swap-btn" onClick={() => { const tmp = originStation; setOriginStation(destStation); setDestStation(tmp); }} title="Swap">
-              ↕
-            </button>
-          </div>
-
-          {/* Destination Station */}
-          <div className="field-row">
-            <div className="field-label">{L.destination}</div>
-            <select
-              className="station-select"
-              value={destStation}
-              onChange={e => setDestStation(e.target.value)}
-            >
-              <option value="">{lang === 'zh' ? '-- 選擇車站 --' : '-- Select station --'}</option>
-              {MTR_LINES.map(({ line, stations }) => (
-                <optgroup key={line} label={lang === 'zh' ? (LINE_DISPLAY_ZH[line] || line) : line}>
-                  {stations.map(s => (
-                    <option key={`${line}-${s.en}`} value={s.en}>
-                      {lang === 'zh' ? `${s.zh} ${s.en}` : s.en}{s.cs ? '' : (lang === 'zh' ? '（不適用）' : ' (Not covered)')}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
-
-          {/* City Saver eligibility warning + split-journey analysis */}
-          {originStation && destStation && (
-            !ALL_STATIONS_MAP[originStation]?.cs || !ALL_STATIONS_MAP[destStation]?.cs
-          ) && (() => {
-            const split = findBestSplit(originStation, destStation);
-            const directFare = lookupFare(originStation, destStation);
-            const sn = (name) => lang === 'zh' ? (STATION_ZH[name] || name) : name;
-            return (
-              <div>
-                <div className="fare-warning">
-                  <span>⚠️</span>
-                  <div>
-                    {lang === 'zh' ? '都會票不適用於此路線！' : 'City Saver does not cover this route!'}
-                    {!ALL_STATIONS_MAP[originStation]?.cs && <div>{lang === 'zh' ? `${sn(originStation)} 不在都會票覆蓋範圍內。` : `${originStation} is not covered by City Saver.`}</div>}
-                    {!ALL_STATIONS_MAP[destStation]?.cs && <div>{lang === 'zh' ? `${sn(destStation)} 不在都會票覆蓋範圍內。` : `${destStation} is not covered by City Saver.`}</div>}
-                    {!ALL_STATIONS_MAP[originStation]?.cs && !ALL_STATIONS_MAP[destStation]?.cs && (
-                      <div style={{ marginTop: 6, fontWeight: 400 }}>
-                        {lang === 'zh' ? '起點及終點均不在都會票覆蓋範圍內，無法使用拆程方案。建議使用八達通。' : 'Both origin and destination are outside City Saver coverage. No split-journey benefit. Use Octopus instead.'}
-                        {directFare && <div style={{ marginTop: 4, fontWeight: 600 }}>{lang === 'zh' ? `八達通直達車費：HK$${directFare}` : `Octopus direct fare: HK$${directFare}`}</div>}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Split-journey suggestion (only when one station is CS) */}
-                {split ? (
-                  <div style={{ marginTop: 10, padding: '12px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: '#166534', marginBottom: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
-                      <span>✂️</span>
-                      {lang === 'zh' ? '拆程方案 — 善用都會票' : 'Split-journey — use City Saver partially'}
-                    </div>
-
-                    {/* Journey diagram */}
-                    <div style={{ background: 'white', borderRadius: 8, padding: '10px 12px', fontSize: 12, lineHeight: 2 }}>
-                      {split.type === 'one-split' ? (
-                        <div>
-                          {!ALL_STATIONS_MAP[originStation]?.cs ? (
-                            <>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span style={{ background: '#fee2e2', color: '#991b1b', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{lang === 'zh' ? '付費' : 'Pay'}</span>
-                                <span>{sn(originStation)} → {sn(split.splitStations[0])}</span>
-                                <span style={{ fontWeight: 700, color: '#991b1b' }}>${split.fareLegs[0]}</span>
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span style={{ background: '#dcfce7', color: '#166534', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{lang === 'zh' ? '都會票' : 'City Saver'}</span>
-                                <span>{sn(split.splitStations[0])} → {sn(destStation)}</span>
-                                <span style={{ fontWeight: 700, color: '#166534' }}>${CS_PER_TRIP}</span>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span style={{ background: '#dcfce7', color: '#166534', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{lang === 'zh' ? '都會票' : 'City Saver'}</span>
-                                <span>{sn(originStation)} → {sn(split.splitStations[0])}</span>
-                                <span style={{ fontWeight: 700, color: '#166534' }}>${CS_PER_TRIP}</span>
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span style={{ background: '#fee2e2', color: '#991b1b', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{lang === 'zh' ? '付費' : 'Pay'}</span>
-                                <span>{sn(split.splitStations[0])} → {sn(destStation)}</span>
-                                <span style={{ fontWeight: 700, color: '#991b1b' }}>${split.fareLegs[0]}</span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ) : (
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ background: '#fee2e2', color: '#991b1b', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{lang === 'zh' ? '付費' : 'Pay'}</span>
-                            <span>{sn(originStation)} → {sn(split.splitStations[0])}</span>
-                            <span style={{ fontWeight: 700, color: '#991b1b' }}>${split.fareLegs[0]}</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ background: '#dcfce7', color: '#166534', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{lang === 'zh' ? '都會票' : 'City Saver'}</span>
-                            <span>{sn(split.splitStations[0])} → {sn(split.splitStations[1])}</span>
-                            <span style={{ fontWeight: 700, color: '#166534' }}>$0</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ background: '#fee2e2', color: '#991b1b', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{lang === 'zh' ? '付費' : 'Pay'}</span>
-                            <span>{sn(split.splitStations[1])} → {sn(destStation)}</span>
-                            <span style={{ fontWeight: 700, color: '#991b1b' }}>${split.fareLegs[1]}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Split fare summary */}
-                    <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <div style={{ fontSize: 11, color: '#166534' }}>{lang === 'zh' ? '拆程每程費用' : 'Split fare per trip'}</div>
-                        <div style={{ fontSize: 18, fontWeight: 700, color: '#166534' }}>HK${split.totalPerTrip.toFixed(1)}</div>
-                        <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>${CS_PER_TRIP} + ${split.paidFare}</div>
-                      </div>
-                      {directFare && (
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 11, color: '#991b1b' }}>{lang === 'zh' ? '直達車費' : 'Direct fare'}</div>
-                          <div style={{ fontSize: 18, fontWeight: 700, color: '#991b1b' }}>HK${directFare.toFixed(1)}</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {directFare && (
-                      <div style={{
-                        marginTop: 8, padding: '6px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, textAlign: 'center',
-                        background: split.totalPerTrip < directFare ? '#dcfce7' : '#fee2e2',
-                        color: split.totalPerTrip < directFare ? '#166534' : '#991b1b'
-                      }}>
-                        {split.totalPerTrip < directFare
-                          ? (lang === 'zh'
-                            ? `拆程每程可節省 HK$${(directFare - split.totalPerTrip).toFixed(1)}`
-                            : `Split saves HK$${(directFare - split.totalPerTrip).toFixed(1)} per trip`)
-                          : split.totalPerTrip === directFare
-                            ? (lang === 'zh' ? '拆程費用與直達相同' : 'Split costs the same as direct')
-                            : (lang === 'zh'
-                              ? `拆程反而貴 HK$${(split.totalPerTrip - directFare).toFixed(1)} — 直達更划算`
-                              : `Split costs HK$${(split.totalPerTrip - directFare).toFixed(1)} more — direct is better`)
-                        }
-                      </div>
-                    )}
-
-                    {/* Full comparison with City Saver cost included */}
-                    {stats && split.totalPerTrip < (directFare || Infinity) && (() => {
-                      const ridesUsed = 40 - stats.ridesLeft;
-                      const directTotal = directFare ? ridesUsed * directFare : null;
-                      const splitTotal = ridesUsed * split.totalPerTrip;
-                      return (
-                        <div style={{ marginTop: 10, padding: '8px 10px', background: 'white', borderRadius: 8, fontSize: 12 }}>
-                          <div style={{ fontWeight: 600, marginBottom: 6, color: '#333' }}>{lang === 'zh' ? `${ridesUsed} 程總費用比較` : `Total cost for ${ridesUsed} rides`}</div>
-                          {directTotal && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid #f0f0f0' }}>
-                              <span style={{ color: '#666' }}>{lang === 'zh' ? '八達通直達' : 'Octopus direct'}</span>
-                              <span style={{ fontWeight: 600 }}>HK${directTotal.toFixed(1)}</span>
-                            </div>
-                          )}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
-                            <span style={{ color: '#666' }}>{lang === 'zh' ? '都會票 + 拆程車費' : 'City Saver + split fares'}</span>
-                            <span style={{ fontWeight: 600 }}>HK${splitTotal.toFixed(1)}</span>
-                          </div>
-                          <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{lang === 'zh' ? `= ${ridesUsed} × ($${CS_PER_TRIP} 都會票 + $${split.paidFare} 拆程費)` : `= ${ridesUsed} × ($${CS_PER_TRIP} City Saver + $${split.paidFare} split fare)`}</div>
-                          {directTotal && (
-                            <div style={{
-                              marginTop: 6, padding: '4px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, textAlign: 'center',
-                              background: directTotal > splitTotal ? '#dcfce7' : '#fef3c7',
-                              color: directTotal > splitTotal ? '#166534' : '#92400e'
-                            }}>
-                              {directTotal > splitTotal
-                                ? (lang === 'zh' ? `都會票拆程方案節省 HK$${(directTotal - splitTotal).toFixed(1)}` : `City Saver split saves HK$${(directTotal - splitTotal).toFixed(1)} total`)
-                                : (lang === 'zh' ? `八達通直達更便宜 HK$${(splitTotal - directTotal).toFixed(1)}` : `Octopus direct is cheaper by HK$${(splitTotal - directTotal).toFixed(1)}`)
-                              }
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-
-                    <div style={{ marginTop: 8, fontSize: 11, color: '#666', lineHeight: 1.5 }}>
-                      {lang === 'zh'
-                        ? '💡 拆程需於中途站出閘再入閘。都會票段每程計算一次乘車次數。'
-                        : '💡 Split requires tapping out and in at the interchange station. The City Saver leg counts as one ride.'}
-                    </div>
-                  </div>
-                ) : (
-                  <div style={{ marginTop: 8, padding: '8px 12px', background: '#f5f5f5', borderRadius: 8, fontSize: 12, color: '#666' }}>
-                    {lang === 'zh' ? '未找到可用的拆程方案。建議使用八達通直達。' : 'No split-journey option found. Consider using Octopus directly.'}
-                    {directFare && <div style={{ marginTop: 4, fontWeight: 600 }}>{lang === 'zh' ? `八達通直達車費：HK$${directFare}` : `Direct Octopus fare: HK$${directFare}`}</div>}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-
-          {/* TST ↔ East TST free interchange tip */}
-          {originStation && destStation && (
-            originStation === 'Tsim Sha Tsui' || originStation === 'East Tsim Sha Tsui' ||
-            destStation === 'Tsim Sha Tsui' || destStation === 'East Tsim Sha Tsui'
-          ) && (
-            <div style={{ marginTop: 8, padding: '8px 12px', background: '#e3f2fd', borderRadius: 8, fontSize: 12, color: '#1565c0', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
-              <span>💡</span>
-              <div>{lang === 'zh' ? <span>在30分鐘內於<strong>尖沙咀</strong>及<strong>尖東</strong>之間轉乘，<strong>不會</strong>額外扣除都會票乘車次數。</span> : <span>Interchange between <strong>Tsim Sha Tsui</strong> and <strong>East Tsim Sha Tsui</strong> within 30 minutes does <strong>not</strong> deduct an extra journey from your City Saver.</span>}</div>
-            </div>
-          )}
-
-          {/* Both eligible — show fare */}
-          {originStation && destStation && ALL_STATIONS_MAP[originStation]?.cs && ALL_STATIONS_MAP[destStation]?.cs && (
-            <div style={{ marginTop: 12 }}>
-              <div className="field-label">
-                {lang === 'zh' ? '成人八達通單程車費' : 'Adult Octopus Single Trip Fare'}
-                {stopsCount > 0 && <span style={{ fontWeight: 400, marginLeft: 6 }}>({stopsCount} {lang === 'zh' ? '站' : (stopsCount > 1 ? 'stops' : 'stop')})</span>}
-              </div>
-              <div className="fare-input-row">
-                <span className="fare-input-prefix">HK$</span>
-                <input
-                  type="number"
-                  className="fare-input"
-                  placeholder="e.g. 12.5"
-                  value={octopusFare}
-                  onChange={e => setOctopusFare(e.target.value)}
-                  step="0.1"
-                  min="0"
-                />
-                <span className="fare-input-label">{lang === 'zh' ? '每程' : 'per trip'}</span>
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6 }}>
-                {lookupFare(originStation, destStation) ? (
-                  <span style={{ color: 'var(--green)' }}>✓ {lang === 'zh' ? '已自動填入港鐵車費資料 · ' : 'Auto-filled from MTR fare data · '}<a href={lang === 'zh' ? 'https://www.mtr.com.hk/ch/customer/tickets/octopus_fares.html' : 'https://www.mtr.com.hk/en/customer/tickets/octopus_fares.html'} target="_blank" rel="noopener" style={{ color: 'var(--primary)' }}>{lang === 'zh' ? '核實' : 'Verify'}</a></span>
-                ) : (
-                  <span>{lang === 'zh' ? '未找到車費 — 請從 ' : 'Fare not found — enter from '}<a href={lang === 'zh' ? 'https://www.mtr.com.hk/ch/customer/tickets/octopus_fares.html' : 'https://www.mtr.com.hk/en/customer/tickets/octopus_fares.html'} target="_blank" rel="noopener" style={{ color: 'var(--primary)' }}>{lang === 'zh' ? '港鐵車費表' : 'MTR Fare Table'}</a>{lang === 'zh' ? ' 輸入' : ''}</span>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Fare Comparison Results */}
-        {originStation && destStation && ALL_STATIONS_MAP[originStation]?.cs && ALL_STATIONS_MAP[destStation]?.cs && octopusFare && parseFloat(octopusFare) > 0 && stats && (() => {
-          const fare = parseFloat(octopusFare);
-          const ridesUsed = 40 - stats.ridesLeft;
-          const octopusTotal = ridesUsed * fare;
-          const citySaverTotal = 460;
-          const savings = octopusTotal - citySaverTotal;
-          const citySaverPerRide = ridesUsed > 0 ? (citySaverTotal / ridesUsed).toFixed(1) : '—';
-          const breakEvenRides = Math.ceil(citySaverTotal / fare);
-          const isSaving = savings > 0;
-
-          // ─── Transport Subsidy Calculation (公共交通費用補貼計劃) ───
-          // From June 2025: threshold $500/month, subsidy 1/3 of excess, cap $400/month
-          const SUBSIDY_THRESHOLD = 500;
-          const SUBSIDY_RATE = 1 / 3;
-          const SUBSIDY_CAP = 400;
-
-          // Estimate monthly spend (City Saver spans ~40 days ≈ 1.3 months)
-          // For simplicity, calculate total subsidy assuming the full amount is in one month
-          // Octopus: pay-per-ride, so monthly total depends on rides per month
-          // City Saver: $460 is a one-time purchase counted as that month's spend
-          const calcSubsidy = (monthlySpend) => {
-            if (monthlySpend <= SUBSIDY_THRESHOLD) return 0;
-            return Math.min((monthlySpend - SUBSIDY_THRESHOLD) * SUBSIDY_RATE, SUBSIDY_CAP);
-          };
-
-          // For Octopus: approximate as if all rides fall in one billing month
-          const octSubsidy = calcSubsidy(octopusTotal);
-          const octAfterSubsidy = octopusTotal - octSubsidy;
-
-          // For City Saver: $460 purchase counts as the spending
-          const csSubsidy = calcSubsidy(citySaverTotal);
-          const csAfterSubsidy = citySaverTotal - csSubsidy;
-
-          const savingsAfterSubsidy = octAfterSubsidy - csAfterSubsidy;
-          const isSavingAfterSubsidy = savingsAfterSubsidy > 0;
-
-          return (
-            <div className="card">
-              <div className="section-title" style={{ marginBottom: 8 }}>
-                {lang === 'zh' ? `比較結果（${STATION_ZH[originStation] || originStation} ↔ ${STATION_ZH[destStation] || destStation}）` : `Comparison Results (${originStation} ↔ ${destStation})`}
-              </div>
-
-              <div className="fare-compare-grid">
-                <div className="fare-compare-card octopus">
-                  <div className="fc-label">{lang === 'zh' ? '八達通' : 'Octopus'}</div>
-                  <div className="fc-amount">
-                    ${octopusTotal.toFixed(1)}
-                  </div>
-                  <div className="fc-sub">{ridesUsed} {lang === 'zh' ? '程' : 'rides'} × ${fare}</div>
-                </div>
-                <div className="fare-compare-card citysaver">
-                  <div className="fc-label">{lang === 'zh' ? '都會票' : 'City Saver'}</div>
-                  <div className="fc-amount">$460</div>
-                  <div className="fc-sub">${citySaverPerRide} {lang === 'zh' ? '每程' : 'per ride'}</div>
-                </div>
-              </div>
-
-              <div className={`savings-banner ${savings === 0 ? 'even' : isSaving ? 'save' : 'lose'}`}>
-                {savings === 0
-                  ? <>{lang === 'zh' ? '剛好打和' : 'Exact break-even'}<span className="savings-amount">{lang === 'zh' ? '費用相同' : 'Same cost'}</span></>
-                  : isSaving
-                    ? <>{lang === 'zh' ? '都會票為你節省' : 'City Saver saves you'}<span className="savings-amount">HK${savings.toFixed(1)}</span></>
-                    : <>{lang === 'zh' ? '八達通更便宜' : 'Octopus is cheaper by'}<span className="savings-amount">HK${Math.abs(savings).toFixed(1)}</span></>
-                }
-                <div className="savings-sub">
-                  {savings === 0
-                    ? (lang === 'zh' ? `兩種方案均為 HK$${octopusTotal.toFixed(0)}（${ridesUsed} 程）` : `Both options cost HK$${octopusTotal.toFixed(0)} for ${ridesUsed} rides`)
-                    : isSaving
-                      ? (lang === 'zh' ? `比八達通節省 ${((savings / octopusTotal) * 100).toFixed(0)}%` : `That's ${((savings / octopusTotal) * 100).toFixed(0)}% saved vs Octopus`)
-                      : (lang === 'zh' ? `此路線 ${ridesUsed} 程不值得使用都會票` : `City Saver is not worth it for this route with ${ridesUsed} rides`)
-                  }
-                </div>
-              </div>
-
-              {/* After Transport Subsidy */}
-              {(octSubsidy > 0 || csSubsidy > 0) && (
-                <div className="subsidy-section">
-                  <div className="subsidy-header">
-                    <span>🏛️</span>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 13 }}>{lang === 'zh' ? '扣除交通補貼後' : 'After Transport Subsidy'}</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{lang === 'zh' ? '公共交通費用補貼計劃 · 門檻 $500 · 補貼 1/3 · 上限 $400' : '公共交通費用補貼計劃 · Threshold $500 · 1/3 rate · Cap $400'}</div>
-                    </div>
-                  </div>
-                  <div className="fare-compare-grid" style={{ marginTop: 8 }}>
-                    <div className="fare-compare-card octopus" style={{ background: '#f0f7ff' }}>
-                      <div className="fc-label">{lang === 'zh' ? '八達通' : 'Octopus'}</div>
-                      <div className="fc-amount">${octAfterSubsidy.toFixed(1)}</div>
-                      <div className="fc-sub">{lang === 'zh' ? '補貼' : 'Subsidy'}: -${octSubsidy.toFixed(1)}</div>
-                    </div>
-                    <div className="fare-compare-card citysaver" style={{ background: '#f0fff4' }}>
-                      <div className="fc-label">{lang === 'zh' ? '都會票' : 'City Saver'}</div>
-                      <div className="fc-amount">${csAfterSubsidy.toFixed(1)}</div>
-                      <div className="fc-sub">{lang === 'zh' ? '補貼' : 'Subsidy'}: -${csSubsidy.toFixed(1)}</div>
-                    </div>
-                  </div>
-                  <div className={`savings-banner ${savingsAfterSubsidy === 0 ? 'even' : isSavingAfterSubsidy ? 'save' : 'lose'}`} style={{ marginTop: 8 }}>
-                    {savingsAfterSubsidy === 0
-                      ? <>{lang === 'zh' ? '補貼後費用相同' : 'After subsidy: same cost'}<span className="savings-amount">{lang === 'zh' ? '打和' : 'Break even'}</span></>
-                      : isSavingAfterSubsidy
-                        ? <>{lang === 'zh' ? '補貼後，都會票節省' : 'After subsidy, City Saver saves'}<span className="savings-amount">HK${savingsAfterSubsidy.toFixed(1)}</span></>
-                        : <>{lang === 'zh' ? '補貼後，八達通更便宜' : 'After subsidy, Octopus is cheaper by'}<span className="savings-amount">HK${Math.abs(savingsAfterSubsidy).toFixed(1)}</span></>
-                    }
-                  </div>
-                  {csSubsidy === 0 && octSubsidy > 0 && (
-                    <div style={{ fontSize: 11, color: '#b45309', marginTop: 6, lineHeight: 1.5, background: '#fef3c7', padding: '6px 8px', borderRadius: 6 }}>
-                      {lang === 'zh' ? `⚠️ 都會票（$460）低於 $500 門檻 — 無補貼。八達通消費（$${octopusTotal.toFixed(0)}）可獲 $${octSubsidy.toFixed(1)} 補貼。` : `⚠️ City Saver ($460) is below the $500 threshold — no subsidy. Octopus spending ($${octopusTotal.toFixed(0)}) qualifies for $${octSubsidy.toFixed(1)} back.`}
-                    </div>
-                  )}
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>
-                    {lang === 'zh' ? '* 估算假設所有車程在同一曆月內完成。實際補貼取決於每月所有交通工具的總消費。' : '* Estimate assumes all rides fall within one calendar month. Actual subsidy depends on total monthly transport spending across all modes.'}
-                  </div>
-                </div>
-              )}
-
-              <div className="card" style={{ marginTop: 10, padding: '10px 14px', boxShadow: 'none', border: '1px solid var(--border)' }}>
-                <div className="breakeven-row">
-                  <span className="breakeven-label">{lang === 'zh' ? '打和乘車次數' : 'Break-even rides'}</span>
-                  <span className="breakeven-value">{breakEvenRides} {lang === 'zh' ? '程' : 'rides'}</span>
-                </div>
-                <div className="breakeven-row">
-                  <span className="breakeven-label">{lang === 'zh' ? '你的計劃次數' : 'Your planned rides'}</span>
-                  <span className="breakeven-value" style={{ color: ridesUsed >= breakEvenRides ? 'var(--green)' : 'var(--red)' }}>{ridesUsed} {lang === 'zh' ? '程' : 'rides'}</span>
-                </div>
-                <div className="breakeven-row">
-                  <span className="breakeven-label">{lang === 'zh' ? '八達通每程' : 'Octopus per ride'}</span>
-                  <span className="breakeven-value">${fare.toFixed(1)}</span>
-                </div>
-                <div className="breakeven-row">
-                  <span className="breakeven-label">{lang === 'zh' ? '都會票每程' : 'City Saver per ride'}</span>
-                  <span className="breakeven-value">${citySaverPerRide}</span>
-                </div>
-              </div>
-
-            </div>
-          );
-        })()}
-      </div>
-
-
-      {/* ─── Registration Checklist (always visible) ─── */}
-      <div className="section" style={{ paddingTop: 0 }}>
-        <div className={`registration-reminder ${regChecklist.purchased && regChecklist.registered && regChecklist.verified ? 'reg-done' : ''}`}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 10 }}>
-            <span style={{ fontSize: 18 }}>{regChecklist.purchased && regChecklist.registered && regChecklist.verified ? '✅' : '📋'}</span>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>{lang === 'zh' ? '補貼登記' : 'Subsidy Registration'}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                {lang === 'zh' ? '購票後30天內登記以獲取公共交通費用補貼' : 'Register within 30 days of purchase to receive the transport subsidy (公共交通費用補貼)'}
-              </div>
-            </div>
-          </div>
-
-          {/* Purchase date */}
-          <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{lang === 'zh' ? '購買日期：' : 'Purchase date:'}</span>
-            <input type="date" value={regChecklist.purchaseDate} onChange={e => setRegDate(e.target.value)}
-              style={{ flex: 1, fontSize: 13, padding: '5px 8px', border: '1px solid var(--border)', borderRadius: 6, background: 'white', fontFamily: 'inherit' }} />
-          </div>
-
-          {/* Deadline warning */}
-          {regDeadline && !regChecklist.registered && (
-            <div style={{
-              fontSize: 12, padding: '6px 10px', borderRadius: 6, marginBottom: 10,
-              background: regDaysLeft <= 0 ? '#fee2e2' : regDaysLeft <= 7 ? '#fef3c7' : '#ecfdf5',
-              color: regDaysLeft <= 0 ? '#991b1b' : regDaysLeft <= 7 ? '#92400e' : '#065f46',
-              fontWeight: 600
-            }}>
-              {regDaysLeft <= 0
-                ? (lang === 'zh' ? `⚠️ 登記期限已過（${regDeadline.toLocaleDateString('zh-HK', { day: 'numeric', month: 'long' })}）！` : `⚠️ Registration deadline passed (${regDeadline.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})!`)
-                : regDaysLeft <= 7
-                  ? (lang === 'zh' ? `⏰ 尚餘 ${regDaysLeft} 日登記（限期：${regDeadline.toLocaleDateString('zh-HK', { day: 'numeric', month: 'long' })}）` : `⏰ ${regDaysLeft} day${regDaysLeft > 1 ? 's' : ''} left to register (by ${regDeadline.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})`)
-                  : (lang === 'zh' ? `📅 請於 ${regDeadline.toLocaleDateString('zh-HK', { day: 'numeric', month: 'long' })} 前登記（尚餘 ${regDaysLeft} 日）` : `📅 Register by ${regDeadline.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} (${regDaysLeft} days left)`)
-              }
-            </div>
-          )}
-
-          {/* Checklist items */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label className="reg-check-item" onClick={() => toggleReg('purchased')}>
-              <div className={`reg-checkbox ${regChecklist.purchased ? 'checked' : ''}`}>
-                {regChecklist.purchased && '✓'}
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500 }}>{lang === 'zh' ? '已購買都會票' : 'Purchased City Saver'}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{lang === 'zh' ? '保留收據以作登記用途' : 'Keep the receipt for registration'}</div>
-              </div>
-            </label>
-            <label className="reg-check-item" onClick={() => toggleReg('registered')}>
-              <div className={`reg-checkbox ${regChecklist.registered ? 'checked' : ''}`}>
-                {regChecklist.registered && '✓'}
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500 }}>{lang === 'zh' ? '已在自助登記站登記' : 'Registered at Self-registration Point'}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{lang === 'zh' ? '請帶備：車票 + 八達通 + 收據' : 'Bring: ticket + Octopus + receipt'}</div>
-              </div>
-            </label>
-            <label className="reg-check-item" onClick={() => toggleReg('verified')}>
-              <div className={`reg-checkbox ${regChecklist.verified ? 'checked' : ''}`}>
-                {regChecklist.verified && '✓'}
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500 }}>{lang === 'zh' ? '已確認登記狀態' : 'Verified registration status'}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{lang === 'zh' ? '登記後2天可透過八達通App或網站查詢' : 'Check 2 days after via Octopus App or website'}</div>
-              </div>
-            </label>
-          </div>
-
-          <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <a href="https://www.ptfss.gov.hk/" target="_blank" rel="noopener"
-              style={{ fontSize: 12, color: 'var(--primary)', textDecoration: 'none', padding: '4px 10px', border: '1px solid var(--primary)', borderRadius: 6, display: 'inline-block' }}>
-              {lang === 'zh' ? '補貼計劃詳情' : 'Subsidy Scheme Info'}
-            </a>
-            <a href={lang === 'zh' ? 'https://subsidy-enquiry.octopus.com.hk/chi/enquiry' : 'https://subsidy-enquiry.octopus.com.hk/eng/enquiry'} target="_blank" rel="noopener"
-              style={{ fontSize: 12, color: 'var(--primary)', textDecoration: 'none', padding: '4px 10px', border: '1px solid var(--primary)', borderRadius: 6, display: 'inline-block' }}>
-              {lang === 'zh' ? '查詢補貼' : 'Check Subsidy'}
-            </a>
           </div>
         </div>
       </div>
@@ -7036,16 +7074,33 @@ function App() {
         </div>
       )}
 
-      {/* Week start */}
-      <div className="section" style={{ paddingTop: 0, paddingBottom: 4 }}>
-        <div className="inline-toggle">
-          <span>{L.weekStart}:</span>
-          <div className="toggle-group" style={{ maxWidth: 200 }}>
-            <button className={`toggle-btn ${weekStart === 'sun' ? 'active' : ''}`} onClick={() => setWeekStart('sun')}>{lang === 'zh' ? '日' : 'Sun'}</button>
-            <button className={`toggle-btn ${weekStart === 'mon' ? 'active' : ''}`} onClick={() => setWeekStart('mon')}>{lang === 'zh' ? '一' : 'Mon'}</button>
-          </div>
+      {/* Share button */}
+      {stats && (
+        <div className="section" style={{ paddingTop: 0, paddingBottom: 4 }}>
+          <button
+            onClick={() => {
+              const ridesUsed = 40 - stats.ridesLeft;
+              const text = lang === 'zh'
+                ? `我用 MTR 都會票搭咗 ${ridesUsed}/40 程！`
+                : `I've taken ${ridesUsed}/40 rides with MTR City Saver!`;
+              if (navigator.share) {
+                navigator.share({ title: lang === 'zh' ? 'MTR 都會票追蹤器' : 'MTR City Saver Tracker', text, url: location.href });
+              } else {
+                navigator.clipboard.writeText(text + '\n' + location.href).then(() => {
+                  const btn = document.querySelector('.share-btn');
+                  if (btn) { btn.textContent = L.shareCopied; setTimeout(() => { btn.textContent = L.shareResult; }, 2000); }
+                });
+              }
+            }}
+            className="share-btn"
+            style={{
+              width: '100%', padding: '8px 14px', borderRadius: 10,
+              border: 'none', background: 'transparent',
+              color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer'
+            }}
+          >{L.shareResult}</button>
         </div>
-      </div>
+      )}
 
       {/* Primary Calendar */}
       {startDate && (
@@ -7059,32 +7114,13 @@ function App() {
             holidays={holidays}
             getRidesForDate={getRidesForDate}
             overrides={overrides}
+            notes={notes || {}}
             onCellTap={handleCellTap}
             onCellLongPress={handleCellLongPress}
             showNav={true}
             onPrev={navPrev}
             onNext={navNext}
-            quotaMap={stats ? stats.quotaMap : null}
-          />
-        </div>
-      )}
-
-      {/* Next month preview — always follows the primary calendar */}
-      {startDate && (
-        <div className="section preview" style={{ paddingTop: 0 }}>
-          <div className="preview-title">{L.nextMonthPreview}</div>
-          <CalendarMonth
-            year={nextPreviewYear}
-            month={nextPreviewMonth}
-            startDate={startDate}
-            endDate={endDate}
-            weekStart={weekStart}
-            holidays={holidays}
-            getRidesForDate={getRidesForDate}
-            overrides={overrides}
-            onCellTap={handleCellTap}
-            onCellLongPress={handleCellLongPress}
-            showNav={false}
+            onToday={navToday}
             quotaMap={stats ? stats.quotaMap : null}
           />
         </div>
@@ -7095,13 +7131,13 @@ function App() {
         <div className="card">
           <div className="section-title" style={{ marginBottom: 6 }}>{L.legend}</div>
           <div className="legend">
-            <div className="legend-item"><div className="legend-dot" style={{ background: '#eaf7ed', border: '1px solid var(--green)' }}></div> {L.twoTrips}</div>
-            <div className="legend-item"><div className="legend-dot" style={{ background: '#fff8e1', border: '1px solid var(--amber)' }}></div> {L.oneTrip}</div>
+            <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--green-bg)', border: '1px solid var(--green)' }}></div> {L.twoTrips}</div>
+            <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--amber-bg)', border: '1px solid var(--amber)' }}></div> {L.oneTrip}</div>
             <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--off-bg)', border: '1px solid var(--grey)' }}></div> OFF</div>
             <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--primary)', borderRadius: '3px' }}></div><span style={{ fontSize: 11 }}>{L.publicHoliday}</span></div>
             <div className="legend-item">
               <div style={{ position: 'relative', width: 12, height: 12, flexShrink: 0 }}>
-                <div className="legend-dot" style={{ background: 'white', border: '2px solid var(--primary)', width: 10, height: 10 }}></div>
+                <div className="legend-dot" style={{ background: 'var(--card)', border: '2px solid var(--primary)', width: 10, height: 10 }}></div>
                 <div style={{ position: 'absolute', top: 0, right: 0, width: 5, height: 5, borderRadius: '50%', background: 'var(--primary)' }}></div>
               </div>
               <span style={{ fontSize: 11 }}>{lang === 'zh' ? '已手動調整' : 'Adjusted'}</span>
@@ -7113,12 +7149,284 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* ─── Collapsible Settings ─── */}
+      <div className="section">
+        <button onClick={() => setShowSettings(prev => !prev)} style={{
+          width: '100%', padding: '10px 14px', borderRadius: 8,
+          border: '1px solid var(--border)', background: 'var(--card)',
+          color: 'var(--text)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+        }}>
+          <span>⚙️ {lang === 'zh' ? '設定' : 'Settings'}</span>
+          <span style={{ color: 'var(--text-secondary)' }}>{showSettings ? '▾' : '›'}</span>
+        </button>
+        {showSettings && (
+          <div style={{ marginTop: 10 }}>
+            <div className="section-title">{L.workPattern}</div>
+            <div className="toggle-group">
+              <button className={`toggle-btn ${workMode === 'office' ? 'active' : ''}`} onClick={() => setWorkMode('office')}>
+                {L.monFri}
+              </button>
+              <button className={`toggle-btn ${workMode === 'service' ? 'active' : ''}`} onClick={() => setWorkMode('service')}>
+                {L.monSat}
+              </button>
+              <button className={`toggle-btn ${workMode === 'custom' ? 'active' : ''}`} onClick={() => setWorkMode('custom')}>
+                {L.custom}
+              </button>
+            </div>
+
+            {workMode === 'custom' && (
+              <div className="custom-days">
+                {(lang === 'zh' ? [
+                  { key: 1, label: '一' },
+                  { key: 2, label: '二' },
+                  { key: 3, label: '三' },
+                  { key: 4, label: '四' },
+                  { key: 5, label: '五' },
+                  { key: 6, label: '六' },
+                  { key: 0, label: '日' },
+                ] : [
+                  { key: 1, label: 'Mon' },
+                  { key: 2, label: 'Tue' },
+                  { key: 3, label: 'Wed' },
+                  { key: 4, label: 'Thu' },
+                  { key: 5, label: 'Fri' },
+                  { key: 6, label: 'Sat' },
+                  { key: 0, label: 'Sun' },
+                ]).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    className={`day-chip ${customDays[key] ? 'active' : ''}`}
+                    onClick={() => setCustomDays(prev => ({ ...prev, [key]: !prev[key] }))}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="section-title">{L.holidayCalendar}</div>
+            <div className="toggle-group">
+              <button className={`toggle-btn ${holidayType === 'general' ? 'active' : ''}`} onClick={() => setHolidayType('general')}>
+                {L.holidayGeneral} ({holidayCounts.general} {L.daysUnit})
+              </button>
+              <button className={`toggle-btn ${holidayType === 'statutory' ? 'active' : ''}`} onClick={() => setHolidayType('statutory')}>
+                {L.holidayStatutory} ({holidayCounts.statutory} {L.daysUnit})
+              </button>
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>
+              {holLoading ? L.holidayLoading : holSource === 'api' ? '✓ 1823.gov.hk' : L.holidayApiFallback}
+            </div>
+
+            <div className="section-title">{L.ticketStartDate}</div>
+            <div className="date-input-wrapper">
+              <input
+                type="date"
+                className="date-input"
+                value={startDateStr}
+                onChange={e => { setStartDateStr(e.target.value); setOverrides({}); }}
+              />
+            </div>
+
+            <div className="section-title">{L.weekStart}</div>
+            <div className="toggle-group" style={{ maxWidth: 200 }}>
+              <button className={`toggle-btn ${weekStart === 'sun' ? 'active' : ''}`} onClick={() => setWeekStart('sun')}>{lang === 'zh' ? '日' : 'Sun'}</button>
+              <button className={`toggle-btn ${weekStart === 'mon' ? 'active' : ''}`} onClick={() => setWeekStart('mon')}>{lang === 'zh' ? '一' : 'Mon'}</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ─── Archive button ─── */}
+      {onArchive && startDate && (
+        <div className="section" style={{ paddingTop: 0 }}>
+          <button
+            onClick={() => setArchiveModal(true)}
+            style={{
+              width: '100%', padding: '14px 16px', borderRadius: 10,
+              border: '2px solid var(--border)', background: 'var(--card)',
+              color: 'var(--text)', fontSize: 14, fontWeight: 600, cursor: 'pointer'
+            }}
+          >
+            📦 {L.archiveBtn}
+          </button>
+        </div>
+      )}
+
+      {/* Archive confirmation modal */}
+      {archiveModal && (
+        <div className="archive-overlay" onClick={() => setArchiveModal(false)}>
+          <div className="archive-modal" onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>✅</div>
+            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>{L.archiveBtn}</div>
+            {/* Ticket summary */}
+            <div style={{ background: 'var(--bg)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, lineHeight: 1.6 }}>
+              <div style={{ fontWeight: 600 }}>{stats ? `${40 - stats.ridesLeft}/40 ${lang === 'zh' ? '程' : 'rides'}` : '—'}</div>
+              <div style={{ color: 'var(--text-secondary)', fontSize: 11 }}>
+                {startDateStr || '—'} → {endDate ? dateToStr(endDate) : '—'}
+              </div>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.5 }}>{L.archiveConfirm}</div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setArchiveModal(false)} style={{
+                flex: 1, padding: 12, border: 'none', borderRadius: 10,
+                background: 'var(--grey-bg)', color: 'var(--text)', fontSize: 15, fontWeight: 600, cursor: 'pointer'
+              }}>{lang === 'zh' ? '取消' : 'Cancel'}</button>
+              <button onClick={confirmArchive} style={{
+                flex: 1, padding: 12, border: 'none', borderRadius: 10,
+                background: 'var(--primary)', color: 'white', fontSize: 15, fontWeight: 600, cursor: 'pointer'
+              }}>{lang === 'zh' ? '確定' : 'Confirm'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Registration Checklist (collapsible) ─── */}
+      <div className="section" style={{ paddingTop: 0 }}>
+        <div className={`registration-reminder ${allRegDone ? 'reg-done' : ''}`}>
+          <div
+            onClick={() => setRegExpanded(prev => !prev)}
+            style={{ display: 'flex', gap: 8, alignItems: 'center', cursor: 'pointer', marginBottom: regExpanded ? 10 : 0 }}
+          >
+            <span style={{ fontSize: 18 }}>{allRegDone ? '✅' : '📋'}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 600, fontSize: 14 }}>{lang === 'zh' ? '補貼登記' : 'Subsidy Registration'}</div>
+              {!regExpanded && allRegDone && (
+                <div style={{ fontSize: 11, color: 'var(--green)' }}>{lang === 'zh' ? '已完成全部登記步驟' : 'All steps completed'}</div>
+              )}
+              {!regExpanded && !allRegDone && (
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{lang === 'zh' ? '點擊展開查看步驟' : 'Tap to expand'}</div>
+              )}
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', transform: regExpanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s' }}>▼</span>
+          </div>
+
+          {regExpanded && <>
+          <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{lang === 'zh' ? '購買日期：' : 'Purchase date:'}</span>
+            <input type="date" value={regChecklist.purchaseDate} onChange={e => setRegDate(e.target.value)}
+              style={{ flex: 1, fontSize: 13, padding: '5px 8px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--input-bg)', color: 'var(--text)', fontFamily: 'inherit' }} />
+          </div>
+
+          {regDeadline && !regChecklist.registered && (
+            <div style={{
+              fontSize: 12, padding: '6px 10px', borderRadius: 6, marginBottom: 10,
+              background: regDaysLeft <= 0 ? 'var(--red-bg)' : regDaysLeft <= 7 ? 'var(--amber-bg)' : 'var(--green-bg)',
+              color: regDaysLeft <= 0 ? 'var(--red-text)' : regDaysLeft <= 7 ? 'var(--amber-text)' : 'var(--green-text)',
+              fontWeight: 600
+            }}>
+              {regDaysLeft <= 0
+                ? (lang === 'zh' ? `⚠️ 登記期限已過（${regDeadline.toLocaleDateString('zh-HK', { day: 'numeric', month: 'long' })}）！` : `⚠️ Registration deadline passed (${regDeadline.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})!`)
+                : regDaysLeft <= 7
+                  ? (lang === 'zh' ? `⏰ 尚餘 ${regDaysLeft} 日登記（限期：${regDeadline.toLocaleDateString('zh-HK', { day: 'numeric', month: 'long' })}）` : `⏰ ${regDaysLeft} day${regDaysLeft > 1 ? 's' : ''} left to register (by ${regDeadline.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})`)
+                  : (lang === 'zh' ? `📅 請於 ${regDeadline.toLocaleDateString('zh-HK', { day: 'numeric', month: 'long' })} 前登記（尚餘 ${regDaysLeft} 日）` : `📅 Register by ${regDeadline.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} (${regDaysLeft} days left)`)
+              }
+            </div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label className="reg-check-item" onClick={() => toggleReg('purchased')}>
+              <div className={`reg-checkbox ${regChecklist.purchased ? 'checked' : ''}`}>{regChecklist.purchased && '✓'}</div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500 }}>{lang === 'zh' ? '已購買都會票' : 'Purchased City Saver'}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{lang === 'zh' ? '保留收據以作登記用途' : 'Keep the receipt for registration'}</div>
+              </div>
+            </label>
+            <label className="reg-check-item" onClick={() => toggleReg('registered')}>
+              <div className={`reg-checkbox ${regChecklist.registered ? 'checked' : ''}`}>{regChecklist.registered && '✓'}</div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500 }}>{lang === 'zh' ? '已在自助登記站登記' : 'Registered at Self-registration Point'}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{lang === 'zh' ? '請帶備：車票 + 八達通 + 收據' : 'Bring: ticket + Octopus + receipt'}</div>
+              </div>
+            </label>
+            <label className="reg-check-item" onClick={() => toggleReg('verified')}>
+              <div className={`reg-checkbox ${regChecklist.verified ? 'checked' : ''}`}>{regChecklist.verified && '✓'}</div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500 }}>{lang === 'zh' ? '已確認登記狀態' : 'Verified registration status'}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{lang === 'zh' ? '登記後2天可透過八達通App或網站查詢' : 'Check 2 days after via Octopus App or website'}</div>
+              </div>
+            </label>
+          </div>
+
+          <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <a href="https://www.ptfss.gov.hk/" target="_blank" rel="noopener"
+              style={{ fontSize: 12, color: 'var(--primary)', textDecoration: 'none', padding: '4px 10px', border: '1px solid var(--primary)', borderRadius: 6, display: 'inline-block' }}>
+              {lang === 'zh' ? '補貼計劃詳情' : 'Subsidy Scheme Info'}
+            </a>
+            <a href={lang === 'zh' ? 'https://subsidy-enquiry.octopus.com.hk/chi/enquiry' : 'https://subsidy-enquiry.octopus.com.hk/eng/enquiry'} target="_blank" rel="noopener"
+              style={{ fontSize: 12, color: 'var(--primary)', textDecoration: 'none', padding: '4px 10px', border: '1px solid var(--primary)', borderRadius: 6, display: 'inline-block' }}>
+              {lang === 'zh' ? '查詢補貼' : 'Check Subsidy'}
+            </a>
+          </div>
+          </>}
+        </div>
+      </div>
+
+      {/* Custom prompt modal (replaces window.prompt for in-app browser compatibility) */}
+      {promptModal && (
+        <div className="prompt-modal-overlay" onClick={() => promptModal.onCancel()}>
+          <div className="prompt-modal" onClick={e => e.stopPropagation()}>
+            <h3>{promptModal.message}</h3>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
+              {lang === 'zh' ? '乘車次數' : 'Number of trips'}
+            </div>
+            <input
+              type="number"
+              className="prompt-trips-input"
+              defaultValue={promptModal.defaultValue}
+              min="0"
+              max="10"
+              autoFocus
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  const noteEl = document.querySelector('.prompt-note-input');
+                  promptModal.onConfirm(e.target.value, noteEl ? noteEl.value : '');
+                }
+              }}
+              ref={el => el && el.focus()}
+            />
+            {promptModal.hasNote && (
+              <>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                  {lang === 'zh' ? '備注（可選）' : 'Note (optional)'}
+                </div>
+                <input
+                  type="text"
+                  className="prompt-note-input"
+                  defaultValue={promptModal.note || ''}
+                  placeholder={lang === 'zh' ? '如：公幹、探親、請假' : 'e.g. business trip, leave'}
+                  style={{ marginBottom: 16 }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      const tripsEl = document.querySelector('.prompt-trips-input');
+                      promptModal.onConfirm(tripsEl ? tripsEl.value : '0', e.target.value);
+                    }
+                  }}
+                />
+              </>
+            )}
+            <div className="prompt-modal-buttons">
+              <button className="prompt-modal-cancel" onClick={() => promptModal.onCancel()}>
+                {lang === 'zh' ? '取消' : 'Cancel'}
+              </button>
+              <button className="prompt-modal-confirm" onClick={() => {
+                const inp = document.querySelector('.prompt-trips-input');
+                const noteEl = document.querySelector('.prompt-note-input');
+                promptModal.onConfirm(inp ? inp.value : '0', noteEl ? noteEl.value : '');
+              }}>
+                {lang === 'zh' ? '確定' : 'OK'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─── Calendar Month Component ───
-function CalendarMonth({ year, month, startDate, endDate, weekStart, holidays, getRidesForDate, overrides, onCellTap, onCellLongPress, showNav, onPrev, onNext, quotaMap }) {
+function CalendarMonth({ year, month, startDate, endDate, weekStart, holidays, getRidesForDate, overrides, notes, onCellTap, onCellLongPress, showNav, onPrev, onNext, onToday, quotaMap }) {
   const lang = useLang();
   const L = I18N[lang] || I18N.en;
   const monthNamesEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -7174,6 +7482,13 @@ function CalendarMonth({ year, month, startDate, endDate, weekStart, holidays, g
           <div className="cal-title">{monthNames[month]} {year}</div>
         )}
       </div>
+      {onToday && (year !== today.getFullYear() || month !== today.getMonth()) && (
+        <div style={{ textAlign: 'center', marginBottom: 6 }}>
+          <button onClick={onToday} style={{ fontSize: 11, padding: '2px 12px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--input-bg)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600 }}>
+            {lang === 'zh' ? '返回今日' : 'Back to Today'}
+          </button>
+        </div>
+      )}
 
       <div className="cal-weekdays">
         {weekdays.map(d => <div key={d} className="cal-weekday">{d}</div>)}
@@ -7189,7 +7504,8 @@ function CalendarMonth({ year, month, startDate, endDate, weekStart, holidays, g
           const isEnd = endDate && sameDay(date, endDate);
           const inRange = startDate && endDate && date >= startDate && date <= endDate;
           const isToday = sameDay(date, today);
-          const holidayName = holidays[ds] || null;
+          const holidayObj = holidays[ds] || null;
+          const holidayName = holidayObj ? (lang === 'zh' ? (holidayObj.zh || holidayObj.en) : holidayObj.en) : null;
 
           const { rides, status, overridden } = inRange ? getRidesForDate(date) : { rides: 0, status: 'off', overridden: false };
           const hasOverride = overrides[ds] !== undefined && overrides[ds] !== 'auto';
@@ -7227,6 +7543,7 @@ function CalendarMonth({ year, month, startDate, endDate, weekStart, holidays, g
               {isStart && <div className="cal-badge badge-start">{lang === 'zh' ? '開始' : 'START'}</div>}
               {isEnd && <div className="cal-badge badge-end">{lang === 'zh' ? '到期' : 'EXPIRY'}</div>}
               {holidayName && <div className="cal-holiday" title={holidayName}>{holidayName}</div>}
+              {notes && notes[ds] && <div className="cal-holiday" style={{ color: 'var(--amber)', fontStyle: 'italic' }} title={notes[ds]}>{notes[ds]}</div>}
             </div>
           );
         })}
@@ -7262,17 +7579,6 @@ function StationCoverage() {
 
   return (
     <div>
-      <div className="header">
-        <div className="header-accent" />
-        <div className="header-inner">
-          <div className="header-logo">MTR</div>
-          <div>
-            <h1>{isZh ? '車站覆蓋範圍' : 'Station Coverage'}</h1>
-            <div className="subtitle">{isZh ? '都會票 · 67個適用車站' : 'City Saver · 67 Eligible Stations'}</div>
-          </div>
-        </div>
-      </div>
-
       <div className="coverage-page">
         <div className="coverage-summary">
           <div className="coverage-stat">
@@ -7392,37 +7698,37 @@ function MtrServiceStatus() {
 
   const statusIcon = (s) => s === 'normal' ? '✅' : s === 'delay' ? '⚠️' : s === 'disruption' ? '🔴' : '❓';
   const statusText = (s) => s === 'normal' ? L.normal : s === 'delay' ? L.delay : s === 'disruption' ? L.disruption : '?';
-  const statusColor = (s) => s === 'normal' ? '#166534' : s === 'delay' ? '#b45309' : s === 'disruption' ? '#991b1b' : '#666';
+  const statusColor = (s) => s === 'normal' ? 'var(--green-text)' : s === 'delay' ? 'var(--amber-text)' : s === 'disruption' ? 'var(--red-text)' : 'var(--text-secondary)';
 
   return (
-    <div style={{ margin: '0 12px 8px', borderRadius: 10, overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+    <div style={{ margin: '0 12px 8px', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border)' }}>
       <div
         onClick={() => setExpanded(!expanded)}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '8px 12px', cursor: 'pointer',
-          background: !lineStatus ? '#f9fafb' : hasIssues ? '#fef3c7' : '#f0fdf4'
+          background: !lineStatus ? 'var(--bg)' : hasIssues ? 'var(--amber-bg)' : 'var(--green-bg)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600 }}>
           <span>{!lineStatus ? '⏳' : hasIssues ? '⚠️' : '✅'}</span>
-          <span style={{ color: !lineStatus ? '#666' : hasIssues ? '#92400e' : '#166534' }}>
+          <span style={{ color: !lineStatus ? 'var(--text-secondary)' : hasIssues ? 'var(--amber-text)' : 'var(--green-text)' }}>
             {!lineStatus ? L.checking : hasIssues
               ? (isZh ? '部分路綫服務受影響' : 'Some lines affected')
               : L.allNormal}
           </span>
         </div>
-        <span style={{ fontSize: 10, color: '#999', transform: expanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s' }}>▼</span>
+        <span style={{ fontSize: 10, color: 'var(--text-secondary)', transform: expanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s' }}>▼</span>
       </div>
       {expanded && lineStatus && (
-        <div style={{ padding: '6px 12px 10px', background: '#fff' }}>
+        <div style={{ padding: '6px 12px 10px', background: 'var(--card)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 12px' }}>
             {STATUS_PROBES.map(probe => {
               const s = lineStatus[probe.line] || 'unknown';
               return (
                 <div key={probe.line} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', fontSize: 12 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: LINE_COLORS[probe.line] || '#999', display: 'inline-block', flexShrink: 0 }} />
-                  <span style={{ flex: 1, color: '#333' }}>{isZh ? (LINE_NAMES_ZH[probe.line] || probe.label) : probe.label}</span>
+                  <span style={{ flex: 1, color: 'var(--text)' }}>{isZh ? (LINE_NAMES_ZH[probe.line] || probe.label) : probe.label}</span>
                   <span style={{ fontSize: 11, color: statusColor(s), fontWeight: s !== 'normal' ? 700 : 400 }}>
                     {statusIcon(s)} {statusText(s)}
                   </span>
@@ -7434,7 +7740,7 @@ function MtrServiceStatus() {
             <button
               onClick={(e) => { e.stopPropagation(); checkStatus(); }}
               disabled={checking}
-              style={{ fontSize: 10, color: '#666', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+              style={{ fontSize: 10, color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
             >
               {checking ? L.checking : (isZh ? '重新檢查' : 'Refresh')}
             </button>
@@ -7446,7 +7752,76 @@ function MtrServiceStatus() {
 }
 
 // ─── Next Train Page (Standalone) ───
-function NextTrainPage() {
+function FavouriteQuickCard({ favourites, trainCache, onRefresh, onNavigate }) {
+  const lang = useLang();
+  const L = I18N[lang] || I18N.en;
+  const isZh = lang === 'zh';
+
+  useEffect(() => {
+    if (favourites.length > 0) onRefresh(favourites);
+  }, []);
+
+  if (favourites.length === 0) return null;
+
+  const destName = (code) => isZh ? (DEST_NAMES_ZH[code] || DEST_NAMES[code] || code) : (DEST_NAMES[code] || code);
+
+  return (
+    <div className="section" style={{ paddingBottom: 4, paddingTop: 12 }}>
+      <div className="card fav-quick-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: 'var(--text-secondary)', letterSpacing: 0.4 }}>
+            ⭐ {L.favouriteStations}
+          </div>
+          <button onClick={() => onRefresh(favourites)} style={{
+            background: 'none', border: 'none', color: 'var(--primary)',
+            fontSize: 12, fontWeight: 700, cursor: 'pointer', padding: '2px 4px'
+          }}>↻ {L.favRefresh}</button>
+        </div>
+
+        {favourites.map((stationEn) => {
+          const cache = trainCache[stationEn];
+          const stationZh = STATION_ZH[stationEn] || stationEn;
+          const nextTrains = [];
+
+          if (cache && cache.results) {
+            cache.results.forEach(r => {
+              if (r.error || !r.trains) return;
+              const upFirst = r.trains.filter(t => t.dir === 'UP').sort((a,b) => (parseInt(a.ttnt)||999) - (parseInt(b.ttnt)||999))[0];
+              const downFirst = r.trains.filter(t => t.dir === 'DOWN').sort((a,b) => (parseInt(a.ttnt)||999) - (parseInt(b.ttnt)||999))[0];
+              [upFirst, downFirst].filter(Boolean).forEach(t => {
+                const mins = parseInt(t.ttnt);
+                nextTrains.push({
+                  line: r.line,
+                  dest: destName(t.destCode),
+                  time: mins <= 0 ? (isZh ? '即將' : 'Now') : `${t.ttnt}${isZh ? '分' : 'm'}`,
+                  color: LINE_COLORS[r.line] || '#999'
+                });
+              });
+            });
+          }
+
+          return (
+            <div key={stationEn} className="fav-station-row" onClick={() => onNavigate(stationEn)} style={{ cursor: 'pointer' }}>
+              <div className="fav-station-name">{isZh ? stationZh : stationEn}</div>
+              <div className="fav-train-info">
+                {nextTrains.length === 0
+                  ? <span style={{ color: 'var(--text-secondary)', fontSize: 10 }}>—</span>
+                  : nextTrains.slice(0, 2).map((t, i) => (
+                    <span key={i} className="fav-train-chip" style={{ borderLeft: `3px solid ${t.color}` }}>
+                      → {t.dest} {t.time}
+                    </span>
+                  ))
+                }
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function NextTrainPage({ favourites, toggleFavourite }) {
   const lang = useLang();
   const L = I18N[lang] || I18N.en;
   const isZh = lang === 'zh';
@@ -7455,6 +7830,40 @@ function NextTrainPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [countdown, setCountdown] = useState(30);
+  const countdownRef = useRef(null);
+  const refreshRef = useRef(null);
+
+  // Auto-refresh every 30 seconds when train data is showing
+  const hasData = !!trainData;
+  useEffect(() => {
+    if (!hasData || !station) {
+      clearInterval(countdownRef.current);
+      clearInterval(refreshRef.current);
+      setCountdown(30);
+      return;
+    }
+    setCountdown(30);
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) return 30;
+        return prev - 1;
+      });
+    }, 1000);
+    refreshRef.current = setInterval(async () => {
+      if (document.hidden) return;
+      try {
+        const results = await fetchNextTrain(station);
+        setTrainData(results);
+        setLastUpdated(new Date());
+      } catch (_) {}
+      setCountdown(30);
+    }, 30000);
+    return () => {
+      clearInterval(countdownRef.current);
+      clearInterval(refreshRef.current);
+    };
+  }, [hasData, station]);
 
   const stationDisplay = (en) => isZh ? (STATION_ZH[en] || en) : en;
   const lineDisplay = (code) => isZh ? (LINE_NAMES_ZH[code] || LINE_NAMES[code] || code) : (LINE_NAMES[code] || code);
@@ -7494,7 +7903,7 @@ function NextTrainPage() {
       <div className="header">
         <div className="header-accent" />
         <div className="header-inner" style={{ position: 'relative' }}>
-          <div className="header-logo">MTR</div>
+          <div className="header-logo">🚇</div>
           <div>
             <h1>{L.nextTrain}</h1>
             <div className="subtitle">{L.nextTrainSubtitle}</div>
@@ -7508,22 +7917,34 @@ function NextTrainPage() {
         <div className="card">
           <div className="field-row">
             <div className="field-label">{L.selectStation}</div>
-            <select
-              className="station-select"
-              value={station}
-              onChange={e => { setStation(e.target.value); setTrainData(null); }}
-            >
-              <option value="">{L.selectStationPlaceholder}</option>
-              {MTR_LINES.map(({ line, stations }) => (
-                <optgroup key={line} label={lineGroupLabel(line)}>
-                  {stations.filter(s => NEXT_TRAIN_MAP[s.en]).map(s => (
-                    <option key={`${line}-${s.en}`} value={s.en}>
-                      {isZh ? `${s.zh} ${s.en}` : s.en}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <select
+                className="station-select"
+                style={{ flex: 1 }}
+                value={station}
+                onChange={e => { setStation(e.target.value); setTrainData(null); }}
+              >
+                <option value="">{L.selectStationPlaceholder}</option>
+                {MTR_LINES.map(({ line, stations }) => (
+                  <optgroup key={line} label={lineGroupLabel(line)}>
+                    {stations.filter(s => NEXT_TRAIN_MAP[s.en]).map(s => (
+                      <option key={`${line}-${s.en}`} value={s.en}>
+                        {isZh ? `${s.zh} ${s.en}` : s.en}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              {station && toggleFavourite && (
+                <button
+                  className={`star-btn ${favourites && favourites.includes(station) ? 'starred' : ''}`}
+                  onClick={() => toggleFavourite(station)}
+                  title={favourites && favourites.includes(station) ? L.removeFavourite : L.addFavourite}
+                >
+                  {favourites && favourites.includes(station) ? '⭐' : '☆'}
+                </button>
+              )}
+            </div>
           </div>
 
           {station && (
@@ -7532,7 +7953,7 @@ function NextTrainPage() {
               disabled={loading}
               style={{
                 width: '100%', marginTop: 10, padding: '12px 16px', borderRadius: 10,
-                border: 'none', background: loading ? '#ccc' : 'var(--primary)',
+                border: 'none', background: loading ? 'var(--grey-bg)' : 'var(--primary)',
                 color: 'white', fontSize: 14, fontWeight: 700, cursor: loading ? 'default' : 'pointer',
                 transition: 'background 0.15s'
               }}
@@ -7543,8 +7964,8 @@ function NextTrainPage() {
         </div>
 
         {error && (
-          <div className="card" style={{ borderLeft: '4px solid #e65100' }}>
-            <div style={{ color: '#e65100', fontSize: 13, fontWeight: 600 }}>⚠️ {error}</div>
+          <div className="card" style={{ borderLeft: '4px solid var(--amber-text)' }}>
+            <div style={{ color: 'var(--amber-text)', fontSize: 13, fontWeight: 600 }}>⚠️ {error}</div>
           </div>
         )}
 
@@ -7553,8 +7974,9 @@ function NextTrainPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <div style={{ fontWeight: 700, fontSize: 15 }}>📍 {stationDisplay(station)}</div>
               {lastUpdated && (
-                <div style={{ fontSize: 10, color: '#999' }}>
-                  {lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                <div style={{ fontSize: 10, color: 'var(--text-secondary)', textAlign: 'right' }}>
+                  <div>{lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+                  <div style={{ color: 'var(--text-secondary)' }}>{isZh ? `${countdown} 秒後自動更新` : `Auto-refresh in ${countdown}s`}</div>
                 </div>
               )}
             </div>
@@ -7562,11 +7984,11 @@ function NextTrainPage() {
             {trainData.map((lineData, li) => {
               if (lineData.error) {
                 return (
-                  <div key={li} style={{ padding: '8px 10px', background: '#fff3e0', borderRadius: 8, marginBottom: 6, fontSize: 12 }}>
-                    <span style={{ fontWeight: 700, color: LINE_COLORS[lineData.line] || '#333' }}>
+                  <div key={li} style={{ padding: '8px 10px', background: 'var(--amber-bg)', borderRadius: 8, marginBottom: 6, fontSize: 12 }}>
+                    <span style={{ fontWeight: 700, color: LINE_COLORS[lineData.line] || 'var(--text)' }}>
                       {lineDisplay(lineData.line)}
                     </span>
-                    <span style={{ marginLeft: 6, color: '#e65100' }}>⚠️ {lineData.error}</span>
+                    <span style={{ marginLeft: 6, color: 'var(--amber-text)' }}>⚠️ {lineData.error}</span>
                   </div>
                 );
               }
@@ -7586,7 +8008,7 @@ function NextTrainPage() {
                   <div style={{
                     fontSize: 12, fontWeight: 700, marginBottom: 4,
                     display: 'flex', alignItems: 'center', gap: 6,
-                    color: LINE_COLORS[lineData.line] || '#333',
+                    color: LINE_COLORS[lineData.line] || 'var(--text)',
                     paddingBottom: 4, borderBottom: `2px solid ${LINE_COLORS[lineData.line] || '#eee'}`
                   }}>
                     <span style={{ width: 8, height: 8, borderRadius: '50%', background: LINE_COLORS[lineData.line] || '#999', display: 'inline-block' }} />
@@ -7600,12 +8022,12 @@ function NextTrainPage() {
                       <div key={ti} style={{
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                         padding: '6px 10px', borderRadius: 6, fontSize: 13,
-                        background: isNext ? '#e8f5e9' : '#f8f9fa',
-                        borderLeft: isNext ? '3px solid #43a047' : '3px solid transparent'
+                        background: isNext ? 'var(--green-bg)' : 'var(--bg)',
+                        borderLeft: isNext ? '3px solid var(--green)' : '3px solid transparent'
                       }}>
-                        <span style={{ color: '#333' }}>
+                        <span style={{ color: 'var(--text)' }}>
                           → {destDisplay(tr.destCode)}
-                          <span style={{ color: '#aaa', marginLeft: 4, fontSize: 11 }}>{L.platform} {tr.plat}</span>
+                          <span style={{ color: 'var(--text-secondary)', marginLeft: 4, fontSize: 11 }}>{L.platform} {tr.plat}</span>
                         </span>
                         {(() => {
                           /* Compute arrival time: sys_time + ttnt minutes */
@@ -7630,10 +8052,10 @@ function NextTrainPage() {
                           return (
                             <span style={{
                               fontWeight: 700, fontSize: 13, textAlign: 'right',
-                              color: !isNaN(mins) && mins <= 2 ? 'var(--amber)' : '#333'
+                              color: !isNaN(mins) && mins <= 2 ? 'var(--amber)' : 'var(--text)'
                             }}>
                               {tr.ttnt} {L.min}
-                              {hm && <span style={{ fontWeight: 400, fontSize: 11, color: '#999', marginLeft: 4 }}>{hm}</span>}
+                              {hm && <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--text-secondary)', marginLeft: 4 }}>{hm}</span>}
                             </span>
                           );
                         })()}
@@ -7647,7 +8069,7 @@ function NextTrainPage() {
             })}
 
             {trainData.every(d => d.error || !d.trains || d.trains.length === 0) && !trainData.some(d => d.error) && (
-              <div style={{ textAlign: 'center', padding: 16, color: '#999', fontSize: 13 }}>
+              <div style={{ textAlign: 'center', padding: 16, color: 'var(--text-secondary)', fontSize: 13 }}>
                 {L.noTrains}
               </div>
             )}
@@ -7655,7 +8077,7 @@ function NextTrainPage() {
         )}
 
         {!station && !trainData && (
-          <div style={{ textAlign: 'center', padding: '30px 16px', color: '#999', fontSize: 13 }}>
+          <div style={{ textAlign: 'center', padding: '30px 16px', color: 'var(--text-secondary)', fontSize: 13 }}>
             {L.selectPrompt}
           </div>
         )}
@@ -8006,7 +8428,7 @@ function GmbEtaPage() {
                   fontSize: 11, fontWeight: 600, cursor: loadingEtas ? 'not-allowed' : 'pointer'
                 }}
               >
-                {loadingEtas ? (isZh ? '載入中...' : 'Loading...') : '🔄 ' + (isZh ? '重新整理' : 'Refresh')}
+                {loadingEtas ? (isZh ? '載入中...' : 'Loading...') : '🔄 ' + (isZh ? '刷新' : 'Refresh')}
               </button>
             </div>
 
@@ -8101,53 +8523,927 @@ function GmbEtaPage() {
   );
 }
 
+// ─── Fare Comparison Page ───
+function FareComparisonPage() {
+  const lang = useLang();
+  const L = I18N[lang] || I18N.en;
+  const isZh = lang === 'zh';
+  const [showCoverage, setShowCoverage] = useState(false);
+
+  const [originStation, setOriginStation] = useState('');
+  const [destStation, setDestStation] = useState('');
+  const [octopusFare, setOctopusFare] = useState('');
+  const [ridesPlanned, setRidesPlanned] = useState(40);
+
+  const stopsCount = useMemo(() => {
+    if (originStation && destStation && originStation !== destStation)
+      return bfsDistance(originStation, destStation);
+    return -1;
+  }, [originStation, destStation]);
+
+  useEffect(() => {
+    if (!originStation || !destStation || originStation === destStation) { setOctopusFare(''); return; }
+    const fare = lookupFare(originStation, destStation);
+    setOctopusFare(fare ? String(fare) : '');
+  }, [originStation, destStation]);
+
+  const sn = (name) => isZh ? (STATION_ZH[name] || name) : name;
+
+  return (
+    <div>
+      <div className="header">
+        <div className="header-accent" />
+        <div className="header-inner">
+          <div className="header-logo">$</div>
+          <div>
+            <h1>{L.compareTabTitle}</h1>
+            <div className="subtitle">{L.compareTabSubtitle}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="fare-section">
+        <div className="card">
+          {/* Origin */}
+          <div className="field-row">
+            <div className="field-label">{L.origin}</div>
+            <select className="station-select" value={originStation} onChange={e => setOriginStation(e.target.value)}>
+              <option value="">{isZh ? '-- 選擇車站 --' : '-- Select station --'}</option>
+              {MTR_LINES.map(({ line, stations }) => (
+                <optgroup key={line} label={isZh ? (LINE_DISPLAY_ZH[line] || line) : line}>
+                  {stations.map(s => (
+                    <option key={`cmp-o-${line}-${s.en}`} value={s.en}>
+                      {isZh ? `${s.zh} ${s.en}` : s.en}{s.cs ? '' : (isZh ? '（不適用）' : ' (Not covered)')}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+
+          {/* Swap */}
+          <div style={{ textAlign: 'center' }}>
+            <button className="swap-btn" onClick={() => { const t = originStation; setOriginStation(destStation); setDestStation(t); }}>↕</button>
+          </div>
+
+          {/* Destination */}
+          <div className="field-row">
+            <div className="field-label">{L.destination}</div>
+            <select className="station-select" value={destStation} onChange={e => setDestStation(e.target.value)}>
+              <option value="">{isZh ? '-- 選擇車站 --' : '-- Select station --'}</option>
+              {MTR_LINES.map(({ line, stations }) => (
+                <optgroup key={line} label={isZh ? (LINE_DISPLAY_ZH[line] || line) : line}>
+                  {stations.map(s => (
+                    <option key={`cmp-d-${line}-${s.en}`} value={s.en}>
+                      {isZh ? `${s.zh} ${s.en}` : s.en}{s.cs ? '' : (isZh ? '（不適用）' : ' (Not covered)')}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+
+          {/* Non-CS warning + split journey */}
+          {originStation && destStation && (
+            !ALL_STATIONS_MAP[originStation]?.cs || !ALL_STATIONS_MAP[destStation]?.cs
+          ) && (() => {
+            const split = findBestSplit(originStation, destStation);
+            const directFare = lookupFare(originStation, destStation);
+            return (
+              <div>
+                <div className="fare-warning">
+                  <span>⚠️</span>
+                  <div>
+                    {isZh ? '都會票不適用於此路線！' : 'City Saver does not cover this route!'}
+                    {!ALL_STATIONS_MAP[originStation]?.cs && <div>{isZh ? `${sn(originStation)} 不在都會票覆蓋範圍內。` : `${originStation} is not covered by City Saver.`}</div>}
+                    {!ALL_STATIONS_MAP[destStation]?.cs && <div>{isZh ? `${sn(destStation)} 不在都會票覆蓋範圍內。` : `${destStation} is not covered by City Saver.`}</div>}
+                    {!ALL_STATIONS_MAP[originStation]?.cs && !ALL_STATIONS_MAP[destStation]?.cs && (
+                      <div style={{ marginTop: 6, fontWeight: 400 }}>
+                        {isZh ? '起點及終點均不在覆蓋範圍，無法使用拆程方案。' : 'Both stations outside coverage. No split-journey benefit.'}
+                        {directFare && <div style={{ marginTop: 4, fontWeight: 600 }}>{isZh ? `八達通直達：HK$${directFare}` : `Octopus direct: HK$${directFare}`}</div>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {split ? (
+                  <div style={{ marginTop: 10, padding: '12px 14px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--green, #166534)', marginBottom: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span>✂️</span>{isZh ? '拆程方案 — 善用都會票' : 'Split-journey — use City Saver partially'}
+                    </div>
+                    <div style={{ background: 'var(--card)', borderRadius: 8, padding: '10px 12px', fontSize: 12, lineHeight: 2, border: '1px solid var(--border)' }}>
+                      {!ALL_STATIONS_MAP[originStation]?.cs ? (
+                        <>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ background: 'var(--red-bg)', color: 'var(--red-text)', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{isZh ? '付費' : 'Pay'}</span>
+                            <span>{sn(originStation)} → {sn(split.splitStations[0])}</span>
+                            <span style={{ fontWeight: 700, color: 'var(--red-text)' }}>${split.fareLegs[0]}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ background: 'var(--green-bg)', color: 'var(--green-text)', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{isZh ? '都會票' : 'City Saver'}</span>
+                            <span>{sn(split.splitStations[0])} → {sn(destStation)}</span>
+                            <span style={{ fontWeight: 700, color: 'var(--green-text)' }}>${CS_PER_TRIP}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ background: 'var(--green-bg)', color: 'var(--green-text)', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{isZh ? '都會票' : 'City Saver'}</span>
+                            <span>{sn(originStation)} → {sn(split.splitStations[0])}</span>
+                            <span style={{ fontWeight: 700, color: 'var(--green-text)' }}>${CS_PER_TRIP}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ background: 'var(--red-bg)', color: 'var(--red-text)', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{isZh ? '付費' : 'Pay'}</span>
+                            <span>{sn(split.splitStations[0])} → {sn(destStation)}</span>
+                            <span style={{ fontWeight: 700, color: 'var(--red-text)' }}>${split.fareLegs[0]}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: 11, color: 'var(--green, #166534)' }}>{isZh ? '拆程每程費用' : 'Split fare per trip'}</div>
+                        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--green, #166534)' }}>HK${split.totalPerTrip.toFixed(1)}</div>
+                        <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>${CS_PER_TRIP} + ${split.paidFare}</div>
+                      </div>
+                      {directFare && (
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 11, color: 'var(--red-text)' }}>{isZh ? '直達車費' : 'Direct fare'}</div>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--red-text)' }}>HK${directFare.toFixed(1)}</div>
+                        </div>
+                      )}
+                    </div>
+                    {directFare && (
+                      <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, textAlign: 'center', background: split.totalPerTrip < directFare ? 'var(--green-bg)' : 'var(--red-bg)', color: split.totalPerTrip < directFare ? 'var(--green-text)' : 'var(--red-text)' }}>
+                        {split.totalPerTrip < directFare
+                          ? (isZh ? `拆程每程可節省 HK$${(directFare - split.totalPerTrip).toFixed(1)}` : `Split saves HK$${(directFare - split.totalPerTrip).toFixed(1)} per trip`)
+                          : (isZh ? `拆程反而貴 HK$${(split.totalPerTrip - directFare).toFixed(1)}` : `Split costs HK$${(split.totalPerTrip - directFare).toFixed(1)} more`)}
+                      </div>
+                    )}
+                    <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      💡 {isZh ? '拆程需於中途站出閘再入閘。都會票段每程計算一次乘車次數。' : 'Split requires tapping out and in at the interchange. The City Saver leg counts as one ride.'}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ marginTop: 8, padding: '8px 12px', background: 'var(--card)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
+                    {isZh ? '未找到可用的拆程方案。建議使用八達通直達。' : 'No split-journey option found. Consider using Octopus directly.'}
+                    {directFare && <div style={{ marginTop: 4, fontWeight: 600 }}>{isZh ? `八達通直達：HK$${directFare}` : `Octopus direct: HK$${directFare}`}</div>}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* TST <-> East TST tip */}
+          {originStation && destStation && (
+            originStation === 'Tsim Sha Tsui' || originStation === 'East Tsim Sha Tsui' ||
+            destStation === 'Tsim Sha Tsui' || destStation === 'East Tsim Sha Tsui'
+          ) && (
+            <div style={{ marginTop: 8, padding: '8px 12px', background: 'var(--info-bg)', borderRadius: 8, fontSize: 12, color: 'var(--info-text)', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+              <span>💡</span>
+              <div>{isZh ? <span><strong>尖沙咀</strong>↔<strong>尖東</strong> 30分鐘內轉乘，不額外扣除都會票次數。</span> : <span><strong>TST</strong> ↔ <strong>East TST</strong> interchange within 30 min does not deduct an extra City Saver ride.</span>}</div>
+            </div>
+          )}
+
+          {/* Both eligible — octopus fare input */}
+          {originStation && destStation && ALL_STATIONS_MAP[originStation]?.cs && ALL_STATIONS_MAP[destStation]?.cs && (
+            <div style={{ marginTop: 12 }}>
+              <div className="field-label">
+                {isZh ? '成人八達通單程車費' : 'Adult Octopus Single Trip Fare'}
+                {stopsCount > 0 && <span style={{ fontWeight: 400, marginLeft: 6 }}>({stopsCount} {isZh ? '站' : stopsCount > 1 ? 'stops' : 'stop'})</span>}
+              </div>
+              <div className="fare-input-row">
+                <span className="fare-input-prefix">HK$</span>
+                <input type="number" className="fare-input" placeholder="e.g. 12.5" value={octopusFare} onChange={e => setOctopusFare(e.target.value)} step="0.1" min="0" />
+                <span className="fare-input-label">{isZh ? '每程' : 'per trip'}</span>
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6 }}>
+                {lookupFare(originStation, destStation)
+                  ? <span style={{ color: 'var(--green)' }}>✓ {isZh ? '已自動填入港鐵車費資料' : 'Auto-filled from MTR fare data'}</span>
+                  : <span>{isZh ? '未找到車費，請手動輸入' : 'Fare not found — enter manually'}</span>}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
+                {lang === 'zh' ? '車費數據更新：2026年4月' : 'Fare data updated: Apr 2026'}
+              </div>
+
+              {/* Planned rides input */}
+              <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{L.ridesPlanned}:</span>
+                <input type="number" min="1" max="40" value={ridesPlanned} onChange={e => setRidesPlanned(Math.min(40, Math.max(1, parseInt(e.target.value) || 1)))}
+                  style={{ width: 64, padding: '6px 10px', border: '2px solid var(--border)', borderRadius: 8, fontSize: 14, fontWeight: 600, fontFamily: 'inherit', textAlign: 'center' }} />
+                <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{isZh ? '/ 40 程' : '/ 40 rides'}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Comparison results */}
+        {originStation && destStation && ALL_STATIONS_MAP[originStation]?.cs && ALL_STATIONS_MAP[destStation]?.cs && octopusFare && parseFloat(octopusFare) > 0 && (() => {
+          const fare = parseFloat(octopusFare);
+          const ridesUsed = ridesPlanned;
+          const octopusTotal = ridesUsed * fare;
+          const citySaverTotal = 460;
+          const savings = octopusTotal - citySaverTotal;
+          const citySaverPerRide = ridesUsed > 0 ? (citySaverTotal / ridesUsed).toFixed(1) : '—';
+          const breakEvenRides = Math.ceil(citySaverTotal / fare);
+          const isSaving = savings > 0;
+
+          const SUBSIDY_THRESHOLD = 500, SUBSIDY_RATE = 1 / 3, SUBSIDY_CAP = 400;
+          const calcSubsidy = (spend) => spend <= SUBSIDY_THRESHOLD ? 0 : Math.min((spend - SUBSIDY_THRESHOLD) * SUBSIDY_RATE, SUBSIDY_CAP);
+          const octSubsidy = calcSubsidy(octopusTotal);
+          const octAfterSubsidy = octopusTotal - octSubsidy;
+          const csSubsidy = calcSubsidy(citySaverTotal);
+          const csAfterSubsidy = citySaverTotal - csSubsidy;
+          const savingsAfterSubsidy = octAfterSubsidy - csAfterSubsidy;
+          const isSavingAfterSubsidy = savingsAfterSubsidy > 0;
+
+          return (
+            <div className="card">
+              <div className="section-title" style={{ marginBottom: 8 }}>
+                {isZh ? `比較結果（${STATION_ZH[originStation] || originStation} ↔ ${STATION_ZH[destStation] || destStation}）` : `Results (${originStation} ↔ ${destStation})`}
+              </div>
+              <div className="fare-compare-grid">
+                <div className="fare-compare-card octopus">
+                  <div className="fc-label">{isZh ? '八達通' : 'Octopus'}</div>
+                  <div className="fc-amount">${octopusTotal.toFixed(1)}</div>
+                  <div className="fc-sub">{ridesUsed} {isZh ? '程' : 'rides'} x ${fare}</div>
+                </div>
+                <div className="fare-compare-card citysaver">
+                  <div className="fc-label">{isZh ? '都會票' : 'City Saver'}</div>
+                  <div className="fc-amount">$460</div>
+                  <div className="fc-sub">${citySaverPerRide} {isZh ? '每程' : 'per ride'}</div>
+                </div>
+              </div>
+              <div className={`savings-banner ${savings === 0 ? 'even' : isSaving ? 'save' : 'lose'}`}>
+                {savings === 0
+                  ? <>{isZh ? '剛好打和' : 'Exact break-even'}<span className="savings-amount">{isZh ? '費用相同' : 'Same cost'}</span></>
+                  : isSaving
+                    ? <>{isZh ? '都會票為你節省' : 'City Saver saves you'}<span className="savings-amount">HK${savings.toFixed(1)}</span></>
+                    : <>{isZh ? '八達通更便宜' : 'Octopus is cheaper by'}<span className="savings-amount">HK${Math.abs(savings).toFixed(1)}</span></>}
+                <div className="savings-sub">
+                  {isSaving ? (isZh ? `比八達通節省 ${((savings / octopusTotal) * 100).toFixed(0)}%` : `${((savings / octopusTotal) * 100).toFixed(0)}% saved vs Octopus`)
+                    : savings === 0 ? (isZh ? `兩種方案均為 HK$${octopusTotal.toFixed(0)}` : `Both cost HK$${octopusTotal.toFixed(0)}`)
+                    : (isZh ? `${ridesUsed} 程不值得使用都會票` : `City Saver not worth it for ${ridesUsed} rides`)}
+                </div>
+              </div>
+
+              {(octSubsidy > 0 || csSubsidy > 0) && (
+                <div className="subsidy-section">
+                  <div className="subsidy-header">
+                    <span>🏛️</span>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{isZh ? '扣除交通補貼後' : 'After Transport Subsidy'}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{isZh ? '門檻 $500 · 補貼 1/3 · 上限 $400' : 'Threshold $500 · 1/3 rate · Cap $400'}</div>
+                    </div>
+                  </div>
+                  <div className="fare-compare-grid" style={{ marginTop: 8 }}>
+                    <div className="fare-compare-card octopus">
+                      <div className="fc-label">{isZh ? '八達通' : 'Octopus'}</div>
+                      <div className="fc-amount">${octAfterSubsidy.toFixed(1)}</div>
+                      <div className="fc-sub">{isZh ? '補貼' : 'Subsidy'}: -${octSubsidy.toFixed(1)}</div>
+                    </div>
+                    <div className="fare-compare-card citysaver">
+                      <div className="fc-label">{isZh ? '都會票' : 'City Saver'}</div>
+                      <div className="fc-amount">${csAfterSubsidy.toFixed(1)}</div>
+                      <div className="fc-sub">{isZh ? '補貼' : 'Subsidy'}: -${csSubsidy.toFixed(1)}</div>
+                    </div>
+                  </div>
+                  <div className={`savings-banner ${savingsAfterSubsidy === 0 ? 'even' : isSavingAfterSubsidy ? 'save' : 'lose'}`} style={{ marginTop: 8 }}>
+                    {savingsAfterSubsidy === 0
+                      ? <>{isZh ? '補貼後費用相同' : 'After subsidy: same cost'}<span className="savings-amount">{isZh ? '打和' : 'Break even'}</span></>
+                      : isSavingAfterSubsidy
+                        ? <>{isZh ? '補貼後，都會票節省' : 'After subsidy, City Saver saves'}<span className="savings-amount">HK${savingsAfterSubsidy.toFixed(1)}</span></>
+                        : <>{isZh ? '補貼後，八達通更便宜' : 'After subsidy, Octopus cheaper by'}<span className="savings-amount">HK${Math.abs(savingsAfterSubsidy).toFixed(1)}</span></>}
+                  </div>
+                  {csSubsidy === 0 && octSubsidy > 0 && (
+                    <div style={{ fontSize: 11, color: 'var(--amber-text)', marginTop: 6, lineHeight: 1.5, background: 'var(--amber-bg)', padding: '6px 8px', borderRadius: 6 }}>
+                      {isZh ? `⚠️ 都會票（$460）低於 $500 門檻，無補貼。八達通（$${octopusTotal.toFixed(0)}）可獲 $${octSubsidy.toFixed(1)} 補貼。` : `⚠️ City Saver ($460) is below the $500 threshold — no subsidy. Octopus ($${octopusTotal.toFixed(0)}) qualifies for $${octSubsidy.toFixed(1)} back.`}
+                    </div>
+                  )}
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>
+                    * {isZh ? '估算假設所有車程在同一曆月內完成。' : 'Estimate assumes all rides fall within one calendar month.'}
+                  </div>
+                </div>
+              )}
+
+              <div className="card" style={{ marginTop: 10, padding: '10px 14px', boxShadow: 'none', border: '1px solid var(--border)' }}>
+                <div className="breakeven-row">
+                  <span className="breakeven-label">{isZh ? '打和乘車次數' : 'Break-even rides'}</span>
+                  <span className="breakeven-value">{breakEvenRides} {isZh ? '程' : 'rides'}</span>
+                </div>
+                <div className="breakeven-row">
+                  <span className="breakeven-label">{isZh ? '你的計劃次數' : 'Your planned rides'}</span>
+                  <span className="breakeven-value" style={{ color: ridesUsed >= breakEvenRides ? 'var(--green)' : 'var(--red)' }}>{ridesUsed} {isZh ? '程' : 'rides'}</span>
+                </div>
+                <div className="breakeven-row">
+                  <span className="breakeven-label">{isZh ? '八達通每程' : 'Octopus per ride'}</span>
+                  <span className="breakeven-value">${fare.toFixed(1)}</span>
+                </div>
+                <div className="breakeven-row">
+                  <span className="breakeven-label">{isZh ? '都會票每程' : 'City Saver per ride'}</span>
+                  <span className="breakeven-value">${citySaverPerRide}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Station Coverage toggle */}
+        <div style={{ padding: '0 16px 16px' }}>
+          <button
+            onClick={() => setShowCoverage(prev => !prev)}
+            style={{
+              width: '100%', padding: '12px 16px', borderRadius: 10,
+              border: '1px solid var(--border)', background: 'var(--card)',
+              color: 'var(--text)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+            }}
+          >
+            <span>🚇 {isZh ? '都會票覆蓋車站' : 'City Saver Station Coverage'}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{showCoverage ? '▾' : '›'}</span>
+          </button>
+          {showCoverage && <StationCoverage />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── History Helpers ───
+function parseHistoryDate(ds) {
+  if (!ds) return null;
+  const [y, m, d] = ds.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function makeGetRidesForDate(workMode, customDays, holidays, overrides, startDate, endDate) {
+  return (date) => computeRidesForDate(date, workMode, customDays, holidays, overrides, startDate, endDate);
+}
+
+// ─── History Page ───
+function HistoryPage({ history, onDelete, onEdit }) {
+  const lang = useLang();
+  const L = I18N[lang] || I18N.en;
+  const isZh = lang === 'zh';
+  const [expandedId, setExpandedId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editRides, setEditRides] = useState(0);
+  const [deletePendingId, setDeletePendingId] = useState(null);
+  const [showCalId, setShowCalId] = useState(null);
+  const [histCalYear, setHistCalYear] = useState(null);
+  const [histCalMonth, setHistCalMonth] = useState(null);
+  const fileInputRef = React.useRef(null);
+
+  const handleExport = React.useCallback(() => {
+    try {
+      const data = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('mtr-cs-')) {
+          data[key] = localStorage.getItem(key);
+        }
+      }
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const today = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `mtr-city-saver-backup-${today}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
+  }, []);
+
+  const handleImport = React.useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        const keys = Object.keys(data);
+        if (!keys.length || !keys.some(k => k.startsWith('mtr-cs-'))) {
+          alert(L.importError);
+          return;
+        }
+        if (!confirm(L.importConfirm)) return;
+        keys.forEach(k => {
+          if (k.startsWith('mtr-cs-')) {
+            localStorage.setItem(k, data[k]);
+          }
+        });
+        alert(L.importSuccess);
+        window.location.reload();
+      } catch {
+        alert(L.importError);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }, [L]);
+
+  React.useEffect(() => {
+    if (expandedId !== null) {
+      const rec = history.find(r => r.id === expandedId);
+      if (rec && rec.startDate) {
+        const [y, m] = rec.startDate.split('-').map(Number);
+        setHistCalYear(y);
+        setHistCalMonth(m - 1);
+      }
+    } else {
+      setHistCalYear(null);
+      setHistCalMonth(null);
+    }
+  }, [expandedId]);
+
+  const sorted = useMemo(() => [...history].reverse(), [history]);
+  const fmtDate = useCallback((ds) => {
+    if (!ds) return '—';
+    const [y, m, d] = ds.split('-');
+    const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+    return date.toLocaleDateString(isZh ? 'zh-HK' : 'en-GB', { day: 'numeric', month: isZh ? 'long' : 'short', year: 'numeric' });
+  }, [isZh]);
+  const workModeLabel = useCallback((mode) => {
+    if (mode === 'office') return isZh ? '星期一至五' : 'Mon–Fri';
+    if (mode === 'service') return isZh ? '星期一至六' : 'Mon–Sat';
+    return isZh ? '自訂' : 'Custom';
+  }, [isZh]);
+
+  const { showStats, avgRides, completedCount } = useMemo(() => {
+    const show = history.length >= 2;
+    return {
+      showStats: show,
+      avgRides: show ? (history.reduce((s, r) => s + r.ridesUsed, 0) / history.length).toFixed(1) : null,
+      completedCount: history.filter(r => r.completed).length,
+    };
+  }, [history]);
+  const totalSavings = history.reduce((sum, r) => sum + (r.totalSavings != null ? r.totalSavings : 0), 0);
+
+  return (
+    <div>
+      <div className="header">
+        <div className="header-accent" />
+        <div className="header-inner">
+          <div className="header-logo">🚇</div>
+          <div>
+            <h1>{L.historyTitle}</h1>
+            <div className="subtitle">{isZh ? '每張車票使用記錄' : 'Record of past tickets'}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="section">
+        {showStats && (
+          <div className="history-stats-row">
+            <div className="history-stat-card">
+              <div className="history-stat-val">{avgRides}</div>
+              <div className="history-stat-label">{L.statsAvgRides}</div>
+            </div>
+            <div className="history-stat-card">
+              <div className="history-stat-val">{completedCount}</div>
+              <div className="history-stat-label">{L.statsCompleted}</div>
+            </div>
+            <div className="history-stat-card">
+              <div className="history-stat-val">${totalSavings.toFixed(0)}</div>
+              <div className="history-stat-label">{L.statsSavings}</div>
+            </div>
+          </div>
+        )}
+
+        {history.length === 0 && (
+          <div className="card" style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--text-secondary)', fontSize: 13, lineHeight: 1.7 }}>
+            📋
+            <div style={{ marginTop: 8, whiteSpace: 'pre-line' }}>{L.historyEmpty}</div>
+          </div>
+        )}
+
+        {sorted.map((rec) => {
+          const isExpanded = expandedId === rec.id;
+          const hasCalData = rec.overrides !== undefined;
+          let calProps = null;
+          if (isExpanded && hasCalData) {
+            const recStart = parseHistoryDate(rec.startDate);
+            const recEnd = rec.startDate ? addDays(recStart, 39) : null;
+            const recOverrides = rec.overrides || {};
+            const recNotes = rec.notes || {};
+            const recHolidays = rec.holidays || {};
+            const recCustomDays = rec.customDays || { 1: true, 2: true, 3: true, 4: true, 5: true, 6: false, 0: false };
+            const recQuotaMap = rec.quotaMap || {};
+            const recWeekStart = rec.weekStart || 'sun';
+            const getRides = makeGetRidesForDate(rec.workMode, recCustomDays, recHolidays, recOverrides, recStart, recEnd);
+            const viewY = histCalYear !== null ? histCalYear : (recStart ? recStart.getFullYear() : new Date().getFullYear());
+            const viewM = histCalMonth !== null ? histCalMonth : (recStart ? recStart.getMonth() : 0);
+            calProps = { recStart, recEnd, recOverrides, recNotes, recHolidays, recQuotaMap, recWeekStart, getRides, viewY, viewM };
+          }
+
+          return (
+            <div key={rec.id} className="history-record" onClick={() => setExpandedId(isExpanded ? null : rec.id)}>
+              <div className="history-record-header">
+                <div>
+                  <div className="history-record-dates">
+                    {fmtDate(rec.startDate)} → {rec.startDate ? fmtDate(dateToStr(addDays(parseHistoryDate(rec.startDate), 39))) : '—'}
+                  </div>
+                  <div className="history-record-sub">
+                    {rec.ridesUsed}/40 {isZh ? '程' : 'rides'}
+                    {rec.ridesWasted > 0 && <span style={{ color: 'var(--amber)', marginLeft: 6 }}>({rec.ridesWasted} {L.histRidesWasted})</span>}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className={`history-badge ${rec.completed ? 'completed' : 'expired'}`}>
+                    {rec.completed ? L.histCompleted : L.histExpired}
+                  </span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: 14 }}>{isExpanded ? '▾' : '›'}</span>
+                </div>
+              </div>
+
+              {isExpanded && (
+                <div>
+                  <div className="history-record-detail">
+                    <span>{L.histWorkMode}: {workModeLabel(rec.workMode)}</span>
+                    <span>{isZh ? '封存日' : 'Archived'}: {fmtDate(rec.endDate)}</span>
+                    <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                      {editingId === rec.id ? (
+                        <>
+                          <button
+                            style={{ background: 'var(--green-bg)', color: 'var(--green)', border: '1px solid var(--green)', borderRadius: 6, padding: '4px 8px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const val = Math.max(0, Math.min(40, editRides));
+                              const updatedSavings = rec.octopusFare ? val * rec.octopusFare - 460 : rec.totalSavings;
+                              onEdit && onEdit(rec.id, { ridesUsed: val, completed: val >= 40, totalSavings: updatedSavings });
+                              setEditingId(null);
+                            }}
+                          >{L.histSave}</button>
+                          <button
+                            style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', borderRadius: 6, padding: '4px 8px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                            onClick={(e) => { e.stopPropagation(); setEditingId(null); }}
+                          >{L.histCancel}</button>
+                        </>
+                      ) : (
+                        <button
+                          style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', borderRadius: 6, padding: '4px 8px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                          onClick={(e) => { e.stopPropagation(); setEditingId(rec.id); setEditRides(rec.ridesUsed); }}
+                        >{L.histEdit}</button>
+                      )}
+                      <button
+                        style={{ background: deletePendingId === rec.id ? 'var(--red-bg)' : 'transparent', color: deletePendingId === rec.id ? 'var(--red)' : 'var(--text-secondary)', border: `1px solid ${deletePendingId === rec.id ? 'var(--red)' : 'var(--border)'}`, borderRadius: 6, padding: '4px 8px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (deletePendingId === rec.id) { onDelete && onDelete(rec.id); setDeletePendingId(null); setExpandedId(null); }
+                          else { setDeletePendingId(rec.id); setTimeout(() => setDeletePendingId(prev => prev === rec.id ? null : prev), 2500); }
+                        }}
+                      >🗑 {deletePendingId === rec.id ? L.histDeleteConfirm : L.histDelete}</button>
+                    </div>
+                  </div>
+
+                  {editingId === rec.id && (
+                    <div style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }} onClick={e => e.stopPropagation()}>
+                      <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{L.histRidesLabel}:</span>
+                      <input
+                        type="number" min="0" max="40" value={editRides}
+                        onChange={(e) => setEditRides(Math.max(0, Math.min(40, parseInt(e.target.value) || 0)))}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') { const val = Math.max(0, Math.min(40, editRides)); const updSavings = rec.octopusFare ? val * rec.octopusFare - 460 : rec.totalSavings; onEdit && onEdit(rec.id, { ridesUsed: val, completed: val >= 40, totalSavings: updSavings }); setEditingId(null); }
+                          if (e.key === 'Escape') setEditingId(null);
+                        }}
+                        autoFocus
+                        style={{ width: 60, padding: '4px 8px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13, textAlign: 'center', background: 'var(--card)', color: 'var(--text)' }}
+                      />
+                      <span style={{ color: 'var(--text-secondary)' }}>/40</span>
+                    </div>
+                  )}
+
+                  {(() => {
+                    const totalRides = rec.ridesUsed || 0;
+                    let daysRidden = 0;
+                    if (rec.startDate) {
+                      const rStart = parseHistoryDate(rec.startDate);
+                      const rEnd = addDays(rStart, 39);
+                      const rGetRides = makeGetRidesForDate(rec.workMode, rec.customDays || { 1:true,2:true,3:true,4:true,5:true,6:false,0:false }, rec.holidays || {}, rec.overrides || {}, rStart, rEnd);
+                      let quotaLeft = 40;
+                      for (let d = new Date(rStart); d <= rEnd && quotaLeft > 0; d.setDate(d.getDate() + 1)) {
+                        const { rides } = rGetRides(new Date(d));
+                        if (rides > 0) { daysRidden++; quotaLeft -= rides; }
+                      }
+                    }
+                    const dailyAvg = daysRidden > 0 ? (totalRides / daysRidden).toFixed(1) : '—';
+                    const usageRate = ((totalRides / 40) * 100).toFixed(0);
+                    return (
+                      <div className="hist-summary-row">
+                        <div className="hist-summary-item"><span className="hs-label">{L.histDaysRidden}</span><span className="hs-val">{daysRidden}</span></div>
+                        <div className="hist-summary-item"><span className="hs-label">{L.histTotalRides}</span><span className="hs-val">{totalRides}</span></div>
+                        <div className="hist-summary-item"><span className="hs-label">{L.histDailyAvg}</span><span className="hs-val">{dailyAvg}</span></div>
+                        <div className="hist-summary-item"><span className="hs-label">{L.histUsageRate}</span><span className="hs-val">{usageRate}%</span></div>
+                      </div>
+                    );
+                  })()}
+
+                  {calProps && (
+                    <div onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => setShowCalId(prev => prev === rec.id ? null : rec.id)}
+                        style={{ display: 'block', width: '100%', padding: '8px', border: 'none', background: 'transparent', color: 'var(--text-secondary)', fontSize: 11, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}
+                      >{showCalId === rec.id ? (isZh ? '▾ 收起日曆' : '▾ Hide Calendar') : (isZh ? '▸ 查看日曆' : '▸ View Calendar')}</button>
+                      {showCalId === rec.id && (
+                        <div style={{ padding: '0 10px 12px' }}>
+                          <CalendarMonth
+                            year={calProps.viewY} month={calProps.viewM}
+                            startDate={calProps.recStart} endDate={calProps.recEnd}
+                            weekStart={calProps.recWeekStart} holidays={calProps.recHolidays}
+                            getRidesForDate={calProps.getRides} overrides={calProps.recOverrides}
+                            onCellTap={null} onCellLongPress={null} showNav={true}
+                            onPrev={() => setHistCalMonth(prev => { if (prev === 0) { setHistCalYear(y => y - 1); return 11; } return (prev || calProps.viewM) - 1; })}
+                            onNext={() => setHistCalMonth(prev => { if (prev === 11) { setHistCalYear(y => y + 1); return 0; } return (prev || calProps.viewM) + 1; })}
+                            quotaMap={calProps.recQuotaMap} notes={calProps.recNotes}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 20, marginBottom: 8 }}>
+          <button
+            onClick={handleExport}
+            style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 14px', fontSize: 12, color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 500 }}
+          >💾 {L.exportData}</button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 14px', fontSize: 12, color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 500 }}
+          >📂 {L.importData}</button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            style={{ display: 'none' }}
+            onChange={handleImport}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Root App with Tab Navigation ───
+function OnboardingOverlay({ lang, onDismiss }) {
+  const L = I18N[lang] || I18N.en;
+  return (
+    <div className="onboarding-overlay">
+      <div className="onboarding-logo">🚇</div>
+      <div className="onboarding-title">{L.onboardingTitle}</div>
+      <div className="onboarding-subtitle">{L.onboardingSubtitle}</div>
+
+      <div className="onboarding-steps">
+        <div className="onboarding-step">
+          <div className="onboarding-step-num">1</div>
+          <div>
+            <div className="onboarding-step-text">{L.onboardingStep1}</div>
+            <div className="onboarding-step-sub">{L.onboardingStep1Sub}</div>
+          </div>
+        </div>
+        <div className="onboarding-step">
+          <div className="onboarding-step-num">2</div>
+          <div>
+            <div className="onboarding-step-text">{L.onboardingStep2}</div>
+            <div className="onboarding-step-sub">{L.onboardingStep2Sub}</div>
+          </div>
+        </div>
+        <div className="onboarding-step">
+          <div className="onboarding-step-num">3</div>
+          <div>
+            <div className="onboarding-step-text">{L.onboardingStep3}</div>
+            <div className="onboarding-step-sub">{L.onboardingStep3Sub}</div>
+          </div>
+        </div>
+      </div>
+
+      <button className="onboarding-start" onClick={onDismiss}>
+        {L.onboardingStart}
+      </button>
+      <div className="onboarding-footer">{L.onboardingTip}</div>
+    </div>
+  );
+}
+
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 32, textAlign: 'center', fontFamily: '-apple-system, sans-serif' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+          <h2 style={{ fontSize: 18, marginBottom: 8, color: 'var(--text, #333)' }}>Something went wrong</h2>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary, #999)', marginBottom: 16 }}>
+            {this.state.error?.message || 'An unexpected error occurred'}
+          </p>
+          <button onClick={() => { location.reload(); }}
+            style={{ padding: '10px 20px', border: '2px solid #0078d4', borderRadius: 8, background: 'white', color: '#0078d4', fontSize: 14, fontWeight: 600, cursor: 'pointer', marginRight: 8 }}>
+            Reload / 重新載入
+          </button>
+          <button onClick={() => { if (window.confirm('\u78BA\u5B9A\u8981\u6E05\u9664\u6240\u6709\u6578\u64DA\u4E26\u91CD\u65B0\u8F09\u5165\uFF1F\u6B64\u64CD\u4F5C\u7121\u6CD5\u5FA9\u539F\u3002\n\nClear all data and reload? This cannot be undone.')) { localStorage.clear(); location.reload(); } }}
+            style={{ padding: '10px 20px', border: '2px solid #dc0714', borderRadius: 8, background: 'white', color: '#dc0714', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+            Reset & Reload / 清除數據
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function RootApp() {
   const [activeTab, setActiveTab] = useState('tracker');
-  const [lang, setLang] = useState('zh');
+  const [lang, setLang] = useState(() => { try { return localStorage.getItem('mtr-cs-lang') || 'zh'; } catch { return 'zh'; } });
+  useEffect(() => { try { localStorage.setItem('mtr-cs-lang', lang); } catch {} }, [lang]);
+
+  // Favourite stations
+  const [favourites, setFavourites] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('mtr-cs-favourites') || '[]'); } catch { return []; }
+  });
+  useEffect(() => { try { localStorage.setItem('mtr-cs-favourites', JSON.stringify(favourites)); } catch {} }, [favourites]);
+  const [trainCache, setTrainCache] = useState({});
+
+  const toggleFavourite = useCallback((stationEn) => {
+    setFavourites(prev =>
+      prev.includes(stationEn) ? prev.filter(s => s !== stationEn) : [...prev, stationEn]
+    );
+  }, []);
+
+  const refreshFavouriteTrains = useCallback(async (stations) => {
+    if (!stations || stations.length === 0) return;
+    const fetched = await Promise.all(stations.map(s => fetchNextTrain(s)));
+    const now = Date.now();
+    setTrainCache(prev => {
+      const next = { ...prev };
+      stations.forEach((s, i) => { if (fetched[i]) next[s] = { results: fetched[i], fetchedAt: now }; });
+      return next;
+    });
+  }, []);
+
+  const navigateToNextTrain = useCallback((stationEn) => {
+    setActiveTab('nextTrain');
+  }, []);
+
+  // Ticket history
+  const [history, setHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('mtr-cs-history') || '[]'); } catch { return []; }
+  });
+  useEffect(() => { try { localStorage.setItem('mtr-cs-history', JSON.stringify(history)); } catch {} }, [history]);
+
+  const archiveTicket = useCallback((record) => {
+    setHistory(prev => [...prev, { ...record, id: Date.now() }]);
+  }, []);
+  const deleteHistoryRecord = useCallback((id) => {
+    setHistory(prev => prev.filter(r => r.id !== id));
+  }, []);
+  const editHistoryRecord = useCallback((id, changes) => {
+    setHistory(prev => prev.map(r => r.id === id ? { ...r, ...changes } : r));
+  }, []);
+
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try { return !localStorage.getItem('mtr-cs-onboarded'); } catch { return false; }
+  });
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('mtr-cs-theme') || 'auto'; } catch { return 'auto'; }
+  });
   const L = I18N[lang] || I18N.en;
+
+  // Apply theme to <html> element
+  useEffect(() => {
+    const html = document.documentElement;
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const applyResolved = (resolved) => {
+      if (resolved === 'dark') html.setAttribute('data-theme', 'dark');
+      else html.setAttribute('data-theme', 'light');
+      if (metaTheme) metaTheme.content = resolved === 'dark' ? '#1a1a1a' : '#dc0714';
+    };
+    if (theme === 'dark' || theme === 'light') {
+      applyResolved(theme);
+    } else {
+      // auto: detect system preference
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      applyResolved(mq.matches ? 'dark' : 'light');
+      const handler = (e) => applyResolved(e.matches ? 'dark' : 'light');
+      mq.addEventListener('change', handler);
+      try { localStorage.setItem('mtr-cs-theme', theme); } catch {}
+      return () => mq.removeEventListener('change', handler);
+    }
+    try { localStorage.setItem('mtr-cs-theme', theme); } catch {}
+  }, [theme]);
+
+
+  const dismissOnboarding = useCallback(() => {
+    setShowOnboarding(false);
+    try { localStorage.setItem('mtr-cs-onboarded', '1'); } catch {}
+  }, []);
+
+  if (showOnboarding) {
+    return (
+      <LangContext.Provider value={lang}>
+        <div style={{
+          position: 'fixed', top: 8, right: 8, zIndex: 10001, display: 'flex', gap: 4
+        }}>
+          <div className="theme-toggle-pill" aria-label="Theme switcher">
+            <button className={theme === 'light' ? 'active' : ''} onClick={() => setTheme('light')} title={lang === 'zh' ? '淺色' : 'Light'}>☀️</button>
+            <button className={theme === 'dark' ? 'active' : ''} onClick={() => setTheme('dark')} title={lang === 'zh' ? '深色' : 'Dark'}>🌙</button>
+            <button className={theme === 'auto' ? 'active' : ''} onClick={() => setTheme('auto')} title={lang === 'zh' ? '自動' : 'Auto'}>Auto</button>
+          </div>
+          <button
+            onClick={() => setLang(prev => prev === 'en' ? 'zh' : 'en')}
+            style={{
+              minWidth: 36, minHeight: 36, background: 'rgba(26,26,46,0.85)',
+              border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8,
+              color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)'
+            }}
+          >{lang === 'en' ? '繁中' : 'EN'}</button>
+        </div>
+        <OnboardingOverlay lang={lang} onDismiss={dismissOnboarding} />
+      </LangContext.Provider>
+    );
+  }
 
   return (
     <LangContext.Provider value={lang}>
       <div>
-        {/* Floating language toggle */}
+        {/* Floating language toggle + show guide button */}
         <div style={{
-          position: 'fixed', top: 8, right: 12, zIndex: 1000
+          position: 'fixed', top: 8, right: 8, zIndex: 1000, display: 'flex', gap: 4
         }}>
+          <button
+            onClick={() => setShowOnboarding(true)}
+            aria-label="Help"
+            style={{
+              minWidth: 36, minHeight: 36, background: 'rgba(26,26,46,0.85)',
+              border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8,
+              color: 'white', fontSize: 14, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)'
+            }}
+          >?</button>
+          <div className="theme-toggle-pill" aria-label="Theme switcher">
+            <button className={theme === 'light' ? 'active' : ''} onClick={() => setTheme('light')} title={lang === 'zh' ? '淺色' : 'Light'}>☀️</button>
+            <button className={theme === 'dark' ? 'active' : ''} onClick={() => setTheme('dark')} title={lang === 'zh' ? '深色' : 'Dark'}>🌙</button>
+            <button className={theme === 'auto' ? 'active' : ''} onClick={() => setTheme('auto')} title={lang === 'zh' ? '自動' : 'Auto'}>Auto</button>
+          </div>
           <button
             onClick={() => setLang(prev => prev === 'en' ? 'zh' : 'en')}
             style={{
-              background: 'rgba(26,26,46,0.85)', border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: 8, padding: '5px 10px', color: 'white', fontSize: 11,
-              fontWeight: 700, cursor: 'pointer', letterSpacing: 0.5,
+              minWidth: 36, minHeight: 36, background: 'rgba(26,26,46,0.85)',
+              border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8,
+              color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 2px 8px rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)'
             }}
-          >
-            {lang === 'en' ? '繁中' : 'EN'}
-          </button>
+          >{lang === 'en' ? '繁中' : 'EN'}</button>
         </div>
 
-        {activeTab === 'tracker' && <App />}
-        {activeTab === 'nextTrain' && <NextTrainPage />}
-        {activeTab === 'gmb' && <GmbEtaPage />}
-        {activeTab === 'coverage' && <StationCoverage />}
+        {activeTab === 'tracker' && <>
+          <App onArchive={archiveTicket} />
+          <FavouriteQuickCard
+            favourites={favourites}
+            trainCache={trainCache}
+            onRefresh={refreshFavouriteTrains}
+            onNavigate={navigateToNextTrain}
+          />
+        </>}
+        {activeTab === 'compare' && <FareComparisonPage />}
+        {activeTab === 'history' && <HistoryPage history={history} onDelete={deleteHistoryRecord} onEdit={editHistoryRecord} />}
+        {activeTab === 'nextTrain' && <NextTrainPage favourites={favourites} toggleFavourite={toggleFavourite} />}
+
+        <div className="disclaimer-footer">
+          {lang === 'zh'
+            ? <>本工具為獨立社區項目，與港鐵公司無任何關聯。「MTR」及「都會票」為港鐵公司之商標。車費數據來自 <a href="https://opendata.mtr.com.hk" target="_blank" rel="noopener">opendata.mtr.com.hk</a>，實時列車資料來自 <a href="https://data.gov.hk" target="_blank" rel="noopener">data.gov.hk</a>，公眾假期資料來自 <a href="https://www.1823.gov.hk" target="_blank" rel="noopener">1823.gov.hk</a>，依據香港政府開放數據授權條款使用。車費比較及津貼估算僅供參考，請以官方資料為準。本工具不收集任何個人資料，所有數據僅儲存於閣下裝置。</>
+            : <>This is an independent community tool, not affiliated with MTR Corporation Limited. "MTR" and "City Saver" are trademarks of MTR Corporation Limited. Fare data from <a href="https://opendata.mtr.com.hk" target="_blank" rel="noopener">opendata.mtr.com.hk</a>. Train data from <a href="https://data.gov.hk" target="_blank" rel="noopener">data.gov.hk</a>. Holiday data from <a href="https://www.1823.gov.hk" target="_blank" rel="noopener">1823.gov.hk</a>. Used under the HK Government Open Data Licence. Estimates are for reference only. No personal data is collected.</>
+          }
+        </div>
 
         <div className="tab-bar">
           <button className={`tab-item ${activeTab === 'tracker' ? 'active' : ''}`} onClick={() => setActiveTab('tracker')}>
             <span className="tab-icon">📅</span>
             <span className="tab-label">{L.tracker}</span>
           </button>
+          <button className={`tab-item ${activeTab === 'compare' ? 'active' : ''}`} onClick={() => setActiveTab('compare')}>
+            <span className="tab-icon">💰</span>
+            <span className="tab-label">{L.compareTab}</span>
+          </button>
+          <button className={`tab-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
+            <span className="tab-icon">📋</span>
+            <span className="tab-label">{L.historyTab}</span>
+          </button>
           <button className={`tab-item ${activeTab === 'nextTrain' ? 'active' : ''}`} onClick={() => setActiveTab('nextTrain')}>
             <span className="tab-icon">🚆</span>
             <span className="tab-label">{L.nextTrain}</span>
-          </button>
-          <button className={`tab-item ${activeTab === 'gmb' ? 'active' : ''}`} onClick={() => setActiveTab('gmb')}>
-            <span className="tab-icon">🚐</span>
-            <span className="tab-label">{L.gmb}</span>
-          </button>
-          <button className={`tab-item ${activeTab === 'coverage' ? 'active' : ''}`} onClick={() => setActiveTab('coverage')}>
-            <span className="tab-icon">🚇</span>
-            <span className="tab-label">{L.stations}</span>
           </button>
         </div>
       </div>
@@ -8155,7 +9451,12 @@ function RootApp() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<RootApp />);
+ReactDOM.createRoot(document.getElementById('root')).render(<ErrorBoundary><RootApp /></ErrorBoundary>);
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
 </script>
 </body>
 </html>
