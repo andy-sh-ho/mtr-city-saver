@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OG Image Generator — MTR City Saver Tracker</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0b12;
+    color: #e8eaf0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #aab;
+    letter-spacing: 0.02em;
+  }
+  #preview {
+    border: 1px solid #2a2d3a;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    max-width: 100%;
+  }
+  canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  #downloadBtn {
+    background: #dc0714;
+    color: #fff;
+  }
+  #downloadBtn:hover {
+    background: #f01828;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(220,7,20,0.4);
+  }
+  .size-label {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #667;
+  }
+</style>
+</head>
+<body>
+
+<h1>OG Image Generator</h1>
+
+<div id="preview">
+  <canvas id="canvas" width="1200" height="630"></canvas>
+</div>
+
+<div class="actions">
+  <button id="downloadBtn">Download PNG</button>
+</div>
+<p class="size-label">1200 &times; 630 px &mdash; Facebook / Twitter OG image</p>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 1200, H = 630;
+
+function draw() {
+  // === Background: deep navy gradient ===
+  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0, '#0f1019');
+  bgGrad.addColorStop(0.5, '#141726');
+  bgGrad.addColorStop(1, '#0f1019');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // === Subtle dot grid pattern ===
+  ctx.fillStyle = 'rgba(255,255,255,0.025)';
+  const gridSpacing = 32;
+  for (let x = gridSpacing; x < W; x += gridSpacing) {
+    for (let y = gridSpacing; y < H; y += gridSpacing) {
+      ctx.beginPath();
+      ctx.arc(x, y, 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // === Abstract track lines (horizontal, like rail tracks) ===
+  ctx.save();
+  ctx.globalAlpha = 0.06;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2;
+
+  // Parallel track lines — top area
+  for (let i = 0; i < 3; i++) {
+    const y = 80 + i * 12;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.bezierCurveTo(300, y - 20, 600, y + 20, W, y - 5);
+    ctx.stroke();
+  }
+
+  // Parallel track lines — bottom area
+  for (let i = 0; i < 3; i++) {
+    const y = 540 + i * 12;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 5);
+    ctx.bezierCurveTo(400, y + 25, 800, y - 15, W, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // === Cross-ties on tracks (like railway sleepers) ===
+  ctx.save();
+  ctx.globalAlpha = 0.035;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.5;
+  for (let x = 20; x < W; x += 48) {
+    ctx.beginPath();
+    ctx.moveTo(x, 72);
+    ctx.lineTo(x + 4, 108);
+    ctx.stroke();
+  }
+  for (let x = 20; x < W; x += 48) {
+    ctx.beginPath();
+    ctx.moveTo(x, 532);
+    ctx.lineTo(x + 4, 568);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // === Red accent glow — top left ===
+  const glowTL = ctx.createRadialGradient(0, 0, 0, 0, 0, 500);
+  glowTL.addColorStop(0, 'rgba(220, 7, 20, 0.12)');
+  glowTL.addColorStop(1, 'rgba(220, 7, 20, 0)');
+  ctx.fillStyle = glowTL;
+  ctx.fillRect(0, 0, W, H);
+
+  // === Red accent glow — bottom right ===
+  const glowBR = ctx.createRadialGradient(W, H, 0, W, H, 450);
+  glowBR.addColorStop(0, 'rgba(220, 7, 20, 0.08)');
+  glowBR.addColorStop(1, 'rgba(220, 7, 20, 0)');
+  ctx.fillStyle = glowBR;
+  ctx.fillRect(0, 0, W, H);
+
+  // === MTR Red stripe — top edge ===
+  const stripeGrad = ctx.createLinearGradient(0, 0, W, 0);
+  stripeGrad.addColorStop(0, 'rgba(220, 7, 20, 0)');
+  stripeGrad.addColorStop(0.2, '#dc0714');
+  stripeGrad.addColorStop(0.8, '#dc0714');
+  stripeGrad.addColorStop(1, 'rgba(220, 7, 20, 0)');
+  ctx.fillStyle = stripeGrad;
+  ctx.fillRect(0, 0, W, 4);
+
+  // === Content area — centered layout ===
+  const cx = W / 2;
+
+  // --- Emoji logo with red circle background ---
+  const emojiY = 195;
+  const circleGrad = ctx.createRadialGradient(cx, emojiY, 0, cx, emojiY, 52);
+  circleGrad.addColorStop(0, 'rgba(220, 7, 20, 0.25)');
+  circleGrad.addColorStop(0.7, 'rgba(220, 7, 20, 0.08)');
+  circleGrad.addColorStop(1, 'rgba(220, 7, 20, 0)');
+  ctx.fillStyle = circleGrad;
+  ctx.beginPath();
+  ctx.arc(cx, emojiY, 52, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.font = '56px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🚇', cx, emojiY);
+
+  // --- Main title ---
+  const titleY = 290;
+  ctx.font = 'bold 64px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(220, 7, 20, 0.3)';
+  ctx.shadowBlur = 30;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('MTR 都會票追蹤器', cx, titleY);
+  ctx.restore();
+
+  // --- Subtitle ---
+  const subY = 355;
+  ctx.font = '600 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.fillStyle = '#dc0714';
+  ctx.letterSpacing = '0.15em';
+  ctx.fillText('C I T Y   S A V E R   T R A C K E R', cx, subY);
+
+  // --- Divider line ---
+  const divY = 400;
+  const divW = 280;
+  const divGrad = ctx.createLinearGradient(cx - divW, divY, cx + divW, divY);
+  divGrad.addColorStop(0, 'rgba(220, 7, 20, 0)');
+  divGrad.addColorStop(0.3, 'rgba(220, 7, 20, 0.5)');
+  divGrad.addColorStop(0.5, '#dc0714');
+  divGrad.addColorStop(0.7, 'rgba(220, 7, 20, 0.5)');
+  divGrad.addColorStop(1, 'rgba(220, 7, 20, 0)');
+  ctx.strokeStyle = divGrad;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - divW, divY);
+  ctx.lineTo(cx + divW, divY);
+  ctx.stroke();
+
+  // Small diamond at center of divider
+  ctx.fillStyle = '#dc0714';
+  ctx.save();
+  ctx.translate(cx, divY);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillRect(-4, -4, 8, 8);
+  ctx.restore();
+
+  // --- Tagline ---
+  const tagY = 450;
+  ctx.font = '22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.fillStyle = 'rgba(232, 234, 240, 0.7)';
+  ctx.fillText('追蹤每程慳幾多  ·  Track your savings', cx, tagY);
+
+  // --- Bottom station dots (like MTR line map) ---
+  const dotsY = 520;
+  const dotCount = 7;
+  const dotSpacing = 56;
+  const dotsStartX = cx - ((dotCount - 1) * dotSpacing) / 2;
+
+  ctx.strokeStyle = 'rgba(220, 7, 20, 0.3)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(dotsStartX, dotsY);
+  ctx.lineTo(dotsStartX + (dotCount - 1) * dotSpacing, dotsY);
+  ctx.stroke();
+
+  for (let i = 0; i < dotCount; i++) {
+    const dx = dotsStartX + i * dotSpacing;
+    const isActive = (i === 3);
+
+    ctx.beginPath();
+    ctx.arc(dx, dotsY, isActive ? 10 : 6, 0, Math.PI * 2);
+    ctx.fillStyle = isActive ? '#dc0714' : 'rgba(220, 7, 20, 0.4)';
+    ctx.fill();
+
+    if (isActive) {
+      ctx.beginPath();
+      ctx.arc(dx, dotsY, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.arc(dx, dotsY, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#191b28';
+      ctx.fill();
+    }
+  }
+
+  // === Border: subtle card outline ===
+  ctx.strokeStyle = 'rgba(220, 7, 20, 0.15)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
+}
+
+draw();
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'og-image.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://andy-sh-ho.github.io/mtr-city-saver/sitemap.xml

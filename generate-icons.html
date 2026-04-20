@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Icon Generator</title>
+<style>
+  body { margin: 0; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: -apple-system, sans-serif; color: #eee; gap: 32px; padding: 32px; }
+  .row { display: flex; gap: 40px; align-items: flex-end; flex-wrap: wrap; justify-content: center; }
+  .card { background: #222; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .card h3 { margin: 0; font-size: 14px; color: #888; }
+  .previews { display: flex; gap: 20px; align-items: flex-end; }
+  .previews canvas { border: 1px solid #333; }
+  .label { font-size: 11px; color: #666; text-align: center; margin-top: 4px; }
+  button { background: #dc0714; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: #b50611; }
+  .hidden { position: absolute; left: -9999px; }
+</style>
+</head>
+<body>
+
+<h2 style="margin:0;color:#888;font-weight:400">MTR City Saver — PWA Icons</h2>
+
+<div class="row">
+  <div class="card">
+    <h3>icon-512.png</h3>
+    <div class="previews">
+      <div><canvas id="p512" width="200" height="200"></canvas><div class="label">200px preview</div></div>
+      <div><canvas id="t512" width="48" height="48"></canvas><div class="label">48px home screen</div></div>
+    </div>
+    <button onclick="dl('c512','icon-512.png')">Download 512</button>
+  </div>
+  <div class="card">
+    <h3>icon-192.png</h3>
+    <div class="previews">
+      <div><canvas id="p192" width="192" height="192"></canvas><div class="label">Actual size</div></div>
+      <div><canvas id="t192" width="48" height="48"></canvas><div class="label">48px home screen</div></div>
+    </div>
+    <button onclick="dl('c192','icon-192.png')">Download 192</button>
+  </div>
+</div>
+
+<canvas id="c512" class="hidden" width="512" height="512"></canvas>
+<canvas id="c192" class="hidden" width="192" height="192"></canvas>
+
+<script>
+function drawIcon(ctx, s) {
+  const u = s / 512;
+
+  // === Background: MTR Red gradient ===
+  const bg = ctx.createLinearGradient(0, 0, s, s);
+  bg.addColorStop(0, '#e8081a');
+  bg.addColorStop(1, '#b50611');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, s, s);
+
+  // === Subtle diagonal stripe texture ===
+  ctx.globalAlpha = 0.06;
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2 * u;
+  for (let i = -s; i < s * 2; i += 32 * u) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i + s, s);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // === White circle background ===
+  const cx = s / 2;
+  const cy = s / 2 - 10 * u;
+  const r = 165 * u;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // === MTR-style route ring ===
+  ctx.strokeStyle = '#dc0714';
+  ctx.lineWidth = 12 * u;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 8 * u, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // === Inner ring ===
+  ctx.strokeStyle = 'rgba(220,7,20,0.15)';
+  ctx.lineWidth = 3 * u;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 28 * u, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // === Train emoji (reliable cross-platform) ===
+  ctx.font = `${130 * u}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🚇', cx, cy + 5 * u);
+
+  // === Bottom label: "CS" text ===
+  const labelY = s - 60 * u;
+
+  // Background pill
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.beginPath();
+  ctx.roundRect(cx - 62 * u, labelY - 22 * u, 124 * u, 44 * u, 22 * u);
+  ctx.fill();
+
+  ctx.font = `bold ${28 * u}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('CITY SAVER', cx, labelY);
+}
+
+function render() {
+  // Full size
+  drawIcon(document.getElementById('c512').getContext('2d'), 512);
+  drawIcon(document.getElementById('c192').getContext('2d'), 192);
+
+  // Previews
+  const c512 = document.getElementById('c512');
+  document.getElementById('p512').getContext('2d').drawImage(c512, 0, 0, 200, 200);
+  document.getElementById('t512').getContext('2d').drawImage(c512, 0, 0, 48, 48);
+
+  const c192 = document.getElementById('c192');
+  document.getElementById('p192').getContext('2d').drawImage(c192, 0, 0, 192, 192);
+  document.getElementById('t192').getContext('2d').drawImage(c192, 0, 0, 48, 48);
+}
+
+function dl(id, name) {
+  const a = document.createElement('a');
+  a.download = name;
+  a.href = document.getElementById(id).toDataURL('image/png');
+  a.click();
+}
+
+window.addEventListener('load', render);
+</script>
+</body>
+</html>

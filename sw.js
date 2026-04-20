@@ -1,7 +1,7 @@
-const CACHE_NAME = 'mtr-cs-v1';
+const CACHE_NAME = 'mtr-cs-v3';
 const ASSETS = [
   './',
-  './mtr-city-saver.html',
+  './index.html',
   './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js',
@@ -30,6 +30,25 @@ self.addEventListener('fetch', e => {
   if (url.hostname === 'www.1823.gov.hk' || url.hostname === 'rt.data.gov.hk' || url.hostname === 'opendata.mtr.com.hk') {
     return;
   }
+
+  const isNavigation = e.request.mode === 'navigate' || (e.request.destination === 'document');
+  const isHTML = isNavigation || e.request.url.endsWith('/') || e.request.url.endsWith('.html');
+
+  if (isHTML) {
+    // Network-first for HTML shell so fixes reach returning users
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => caches.match(e.request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Cache-first for CDN libs / static assets
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );

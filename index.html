@@ -4,23 +4,29 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <title>MTR 都會票追蹤器 | MTR City Saver Tracker</title>
-<meta name="description" content="追蹤你的 MTR 都會票使用情況，計算每程車費節省多少。Track your MTR City Saver pass usage and savings." />
+<meta name="description" content="免費追蹤你的 MTR 都會票使用情況，自動計算每程車費節省多少，比較八達通單程票價。Free MTR City Saver monthly pass tracker with fare comparison and real-time train arrivals." />
+<meta name="keywords" content="MTR 都會票, 都會票計算器, 都會票追蹤, 都會票值唔值得買, City Saver calculator, City Saver tracker, MTR monthly pass, 港鐵都會票, 都會票慳幾多, 都會票 vs 八達通, 港鐵月票" />
+<link rel="alternate" hreflang="zh-Hant-HK" href="https://andy-sh-ho.github.io/mtr-city-saver/" />
+<link rel="alternate" hreflang="en" href="https://andy-sh-ho.github.io/mtr-city-saver/" />
+<link rel="alternate" hreflang="x-default" href="https://andy-sh-ho.github.io/mtr-city-saver/" />
 
 <!-- Open Graph -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content="MTR 都會票追蹤器 | City Saver Tracker" />
 <meta property="og:description" content="追蹤 MTR 都會票使用次數、計算每程慳幾多，仲有實時列車到站時間！" />
-<meta property="og:image" content="og-image.png" />
+<meta property="og:image" content="https://andy-sh-ho.github.io/mtr-city-saver/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:locale" content="zh_HK" />
+<meta property="og:url" content="https://andy-sh-ho.github.io/mtr-city-saver/" />
 <meta property="og:site_name" content="MTR 都會票追蹤器" />
+<link rel="canonical" href="https://andy-sh-ho.github.io/mtr-city-saver/" />
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="MTR 都會票追蹤器 | City Saver Tracker" />
 <meta name="twitter:description" content="追蹤 MTR 都會票使用次數、計算每程慳幾多，仲有實時列車到站時間！" />
-<meta name="twitter:image" content="og-image.png" />
+<meta name="twitter:image" content="https://andy-sh-ho.github.io/mtr-city-saver/og-image.png" />
 
 <!-- Theme & Icons -->
 <meta name="theme-color" content="#dc0714" />
@@ -29,6 +35,32 @@
 <link rel="apple-touch-icon" href="icon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "MTR 都會票追蹤器",
+  "alternateName": "MTR City Saver Tracker",
+  "description": "免費追蹤 MTR 都會票使用次數、計算每程慳幾多，比較八達通單程票價，實時列車到站時間",
+  "url": "https://andy-sh-ho.github.io/mtr-city-saver/",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "HKD"
+  },
+  "inLanguage": ["zh-Hant-HK", "en"],
+  "author": {
+    "@type": "Person",
+    "name": "Andy Ho"
+  },
+  "browserRequirements": "Requires JavaScript",
+  "screenshot": "https://andy-sh-ho.github.io/mtr-city-saver/og-image.png"
+}
+</script>
 
 <style>
   :root {
@@ -175,6 +207,26 @@
     align-items: center;
     gap: 10px;
   }
+  .header-actions {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .header-actions button {
+    min-width: 40px;
+    min-height: 40px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+  .header-actions button:active { opacity: 0.7; }
   .header-logo {
     width: 34px;
     height: 34px;
@@ -282,6 +334,43 @@
     font-weight: 600;
   }
 
+  /* Bottom Sheet */
+  .bottom-sheet-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    opacity: 0;
+    animation: fadeIn 0.2s ease forwards;
+  }
+  .bottom-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--card);
+    border-radius: 16px 16px 0 0;
+    z-index: 2001;
+    max-height: 70vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    animation: slideUp 0.3s ease forwards;
+    padding: 0 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+  }
+  .bottom-sheet-handle {
+    width: 36px; height: 4px; background: var(--border);
+    border-radius: 2px; margin: 10px auto 6px;
+  }
+  .bottom-sheet-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 12px;
+  }
+  .bottom-sheet-header h3 { font-size: 16px; font-weight: 700; margin: 0; }
+  .bottom-sheet-close {
+    width: 40px; height: 40px; border: none; background: var(--grey-bg);
+    border-radius: 50%; font-size: 16px; cursor: pointer; color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  @keyframes slideUp { to { transform: translateY(0); } }
+  @keyframes fadeIn { to { opacity: 1; } }
+
   /* Custom day picker */
   .custom-days {
     display: flex;
@@ -335,6 +424,16 @@
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-bottom: 12px;
+  }
+  .stats-grid .stat-hero {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 16px 14px;
+  }
+  .stats-grid .stat-hero .stat-value {
+    font-size: 40px;
+    line-height: 1.1;
+    margin: 4px 0;
   }
   .stat-card {
     background: var(--card);
@@ -397,8 +496,8 @@
     gap: 6px;
   }
   .cal-nav button {
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
     border: none;
     border-radius: 8px;
     background: var(--primary);
@@ -488,12 +587,16 @@
   .status-done { color: #999; font-size: 8px; }
 
   .cal-holiday {
-    font-size: 6px;
-    font-weight: 600;
+    font-size: 9px;
+    font-weight: 700;
     background: var(--holiday-pill);
     color: white;
-    padding: 1px 3px;
+    padding: 1px 4px;
     border-radius: 3px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     margin-top: 1px;
     max-width: 100%;
     text-align: center;
@@ -515,7 +618,7 @@
   .preview .cal-cell .cal-date { font-size: 11px; }
   .preview .cal-cell .cal-badge { font-size: 6px; }
   .preview .cal-cell .cal-status { font-size: 7px; }
-  .preview .cal-cell .cal-holiday { font-size: 5.5px; }
+  .preview .cal-cell .cal-holiday { font-size: 7px; padding: 0 2px; }
 
   /* Override indicator */
   .override-dot {
@@ -595,6 +698,29 @@
     transition: border-color 0.2s;
   }
   .station-select:focus { outline: none; border-color: var(--primary); }
+
+  .line-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .line-pill {
+    padding: 3px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .line-pill.active {
+    color: white;
+    border-color: transparent;
+  }
 
   .fare-input-row {
     display: flex;
@@ -788,8 +914,8 @@
     margin-bottom: 5px;
   }
   .swap-btn {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border: 2px solid var(--border);
     border-radius: 50%;
     background: var(--input-bg);
@@ -1035,8 +1161,10 @@
 
   /* Favourite star */
   .star-btn {
-    background: none; border: none; font-size: 18px; cursor: pointer;
-    padding: 2px 4px; line-height: 1; opacity: 0.4; transition: opacity 0.15s;
+    background: none; border: none; font-size: 20px; cursor: pointer;
+    padding: 10px; line-height: 1; opacity: 0.4; transition: opacity 0.15s;
+    min-width: 40px; min-height: 40px;
+    display: inline-flex; align-items: center; justify-content: center;
   }
   .star-btn.starred { opacity: 1; }
   .star-btn:active { transform: scale(1.2); }
@@ -1105,6 +1233,26 @@
     font-size: 11px; color: var(--text-secondary);
     font-weight: 400; margin-top: 2px;
   }
+  .onboarding-date-section {
+    width: 100%; max-width: 320px;
+    background: var(--card); border-radius: var(--radius);
+    padding: 16px; box-shadow: var(--shadow);
+    margin-bottom: 24px; text-align: center;
+  }
+  .onboarding-date-label {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    margin-bottom: 10px;
+  }
+  .onboarding-date-input {
+    width: 100%; padding: 10px 12px;
+    border: 2px solid var(--border, #e0e0e0); border-radius: 10px;
+    background: var(--bg, #fff); color: var(--text);
+    font-size: 16px; font-weight: 600; text-align: center;
+    -webkit-appearance: none; appearance: none;
+  }
+  .onboarding-date-input:focus {
+    outline: none; border-color: var(--primary);
+  }
   .onboarding-start {
     width: 100%; max-width: 320px; padding: 16px;
     border: none; border-radius: 14px;
@@ -1122,7 +1270,7 @@
     .cal-cell { min-height: 54px; }
     .cal-date { font-size: 12.5px; }
     .cal-status { font-size: 8.5px; }
-    .cal-holiday { font-size: 6px; }
+    .cal-holiday { font-size: 9px; }
     .tab-icon { font-size: 18px; }
     .tab-item { font-size: 9.5px; }
     .coverage-stat .cs-num { font-size: 24px; }
@@ -1132,14 +1280,14 @@
     .cal-cell { min-height: 52px; }
     .cal-date { font-size: 12px; }
     .cal-status { font-size: 8px; }
-    .cal-holiday { font-size: 5.5px; }
+    .cal-holiday { font-size: 8.5px; padding: 1px 3px; }
     .filter-chip { padding: 5px 10px; font-size: 11px; }
   }
   @media (max-width: 375px) {
     .cal-cell { min-height: 50px; padding: 3px 0; }
     .cal-date { font-size: 11.5px; }
     .cal-status { font-size: 7.5px; }
-    .cal-holiday { font-size: 7px; }
+    .cal-holiday { font-size: 8px; padding: 1px 3px; }
     .tab-icon { font-size: 17px; }
     .tab-item { font-size: 9px; padding: 6px 2px 5px; }
   }
@@ -1147,7 +1295,7 @@
     .cal-cell { min-height: 48px; padding: 2px 0; }
     .cal-date { font-size: 11px; }
     .cal-status { font-size: 7px; }
-    .cal-holiday { font-size: 7px; }
+    .cal-holiday { font-size: 8px; padding: 0 2px; }
     .tab-icon { font-size: 16px; }
     .tab-item { font-size: 8.5px; }
     .filter-chip { padding: 4px 8px; font-size: 10px; }
@@ -1183,6 +1331,15 @@
         showCdnError();
       }
     }, 5000);
+    // Even if CDN libs loaded, Babel may fail to transform the text/babel script
+    // (ad-blockers, partial load, syntax-level MIME rewrite). After 8s, if the
+    // loading-msg is still the original placeholder, assume app never mounted.
+    setTimeout(function() {
+      var el = document.getElementById('loading-msg');
+      if (el && el.parentNode && el.parentNode.id === 'root') {
+        showCdnError();
+      }
+    }, 8000);
   }
 })();
 </script>
@@ -6102,6 +6259,7 @@ const I18N = {
     onboardingStep2Sub: 'The day you activated your City Saver',
     onboardingStep3: 'Track your daily rides',
     onboardingStep3Sub: 'Tap a date to cycle rides · Long-press for 3+',
+    onboardingDateLabel: 'When did you activate your City Saver?',
     onboardingStart: 'Start Tracking',
     onboardingTip: 'Use the 💰 Compare tab to check if City Saver is worth it for your route',
     showOnboarding: 'Show Guide',
@@ -6186,7 +6344,7 @@ const I18N = {
     selectStation: '選擇車站',
     selectStationPlaceholder: '-- 選擇車站 --',
     checkArrivals: '🚇 查詢到站時間',
-    refresh: '🔄 刷新',
+    refresh: '🔄 更新',
     loading: '載入中...',
     noTrains: '此站目前沒有列車班次。',
     selectPrompt: '選擇車站即可查看即時到站資訊',
@@ -6219,7 +6377,7 @@ const I18N = {
     ridesUsed: '已使用',
     ridesLeft: '剩餘',
     daysLeft: '剩餘日數',
-    weekStart: '每週開始',
+    weekStart: '每星期開始',
     sunday: '星期日',
     monday: '星期一',
     legend: '圖例',
@@ -6227,7 +6385,7 @@ const I18N = {
     oneTrip: '1 程',
     noTravel: '不乘車',
     publicHoliday: '公眾假期',
-    today: '今天',
+    today: '今日',
     tapCycle: '點擊日期切換：自動 → 2程 → 1程 → 關閉',
     longPressTip: '3程或以上？長按或右鍵點擊日期即可設定',
     tracker: '追蹤器',
@@ -6244,6 +6402,7 @@ const I18N = {
     onboardingStep2Sub: '你開始用都會票嗰日',
     onboardingStep3: '每日追蹤乘車次數',
     onboardingStep3Sub: '點擊日期切換次數 · 長按輸入 3 程或以上',
+    onboardingDateLabel: '你幾時啟用都會票？',
     onboardingStart: '開始追蹤',
     onboardingTip: '用 💰 比較 tab 睇下你嘅路線買都會票抵唔抵',
     showOnboarding: '使用指南',
@@ -6292,7 +6451,7 @@ const I18N = {
     ridesPlanned: '計劃乘車次數',
     historyTab: '記錄',
     historyTitle: '車票記錄',
-    historyEmpty: '未有封存記錄。\n開始新車票時可封存目前車票。',
+    historyEmpty: '未有儲存記錄。\n開始新車票時可儲存目前車票。',
     archiveBtn: '完成此票',
     archiveConfirm: '將此車票儲存到記錄，然後開始新票期？',
     histCompleted: '已完成',
@@ -6643,6 +6802,44 @@ function findBestSplit(origin, dest) {
   return best;
 }
 
+// ─── Storage sanitizers (skip malformed records instead of crashing the page) ───
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+function sanitizeDateNumMap(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out = {};
+  for (const k in raw) {
+    if (!DATE_KEY_RE.test(k)) continue;
+    const v = Number(raw[k]);
+    if (Number.isFinite(v) && v >= 0 && v <= 10) out[k] = v;
+  }
+  return out;
+}
+function sanitizeDateStrMap(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out = {};
+  for (const k in raw) {
+    if (!DATE_KEY_RE.test(k)) continue;
+    const v = raw[k];
+    if (typeof v === 'string' && v.length > 0 && v.length <= 500) out[k] = v;
+  }
+  return out;
+}
+function sanitizeHistory(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(r =>
+    r && typeof r === 'object' &&
+    (typeof r.id === 'number' || typeof r.id === 'string') &&
+    Number.isFinite(Number(r.ridesUsed))
+  ).map(r => ({ ...r, ridesUsed: Number(r.ridesUsed) }));
+}
+function readJSON(key, fallback) {
+  try {
+    const s = localStorage.getItem(key);
+    if (!s) return fallback;
+    return JSON.parse(s);
+  } catch { return fallback; }
+}
+
 // ─── Utilities ───
 function dateToStr(d) {
   const y = d.getFullYear();
@@ -6711,15 +6908,17 @@ function App({ onArchive }) {
   const [weekStart, setWeekStart] = useState(() => {
     try { return localStorage.getItem('mtr-cs-weekStart') || 'sun'; } catch { return 'sun'; }
   });
-  const [overrides, setOverrides] = useState(() => {
-    try { const s = localStorage.getItem('mtr-cs-overrides'); return s ? JSON.parse(s) : {}; } catch { return {}; }
-  });
-  const [notes, setNotes] = useState(() => {
-    try { const s = localStorage.getItem('mtr-cs-notes'); return s ? JSON.parse(s) : {}; } catch { return {}; }
-  });
+  const [overrides, setOverrides] = useState(() => sanitizeDateNumMap(readJSON('mtr-cs-overrides', {})));
+  const [notes, setNotes] = useState(() => sanitizeDateStrMap(readJSON('mtr-cs-notes', {})));
   const [promptModal, setPromptModal] = useState(null);
   const [archiveModal, setArchiveModal] = useState(false);
-  const [showSettings, setShowSettings] = useState(() => !localStorage.getItem('mtr-cs-startDateStr'));
+  const [showSettings, setShowSettings] = useState(false);
+
+  React.useEffect(() => {
+    const handler = () => setShowSettings(prev => !prev);
+    window.addEventListener('open-settings', handler);
+    return () => window.removeEventListener('open-settings', handler);
+  }, []);
 
   const confirmArchive = () => {
     if (onArchive) {
@@ -7009,8 +7208,8 @@ function App({ onArchive }) {
         <div className="header-accent" />
         <div className="header-inner">
           <div className="header-logo">🚇</div>
-          <div>
-            <h1>{L.citySaverTracker}</h1>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{L.citySaverTracker}</h1>
             <div className="subtitle">{L.citySaverSubtitle}</div>
           </div>
         </div>
@@ -7027,6 +7226,13 @@ function App({ onArchive }) {
           )}
 
           <div className="stats-grid">
+            <div className="stat-card stat-hero">
+              <div className="stat-label">{L.ridesLeft}</div>
+              <div className="stat-value" style={{ color: stats.ridesLeft === 0 ? 'var(--green)' : stats.ridesLeft <= 2 ? 'var(--amber)' : 'var(--red)' }}>
+                {stats.ridesLeft}
+              </div>
+              <div className="stat-sub">{lang === 'zh' ? '共40程' : 'of 40 total'}</div>
+            </div>
             {stats.finishDate && (
               <div className="stat-card">
                 <div className="stat-label">{lang === 'zh' ? '配額完成日' : 'Quota Done By'}</div>
@@ -7042,13 +7248,6 @@ function App({ onArchive }) {
                 {endDate.toLocaleDateString(lang === 'zh' ? 'zh-HK' : 'en-GB', { day: 'numeric', month: lang === 'zh' ? 'long' : 'short', year: 'numeric' })}
               </div>
               <div className="stat-sub">{stats.finishDate ? (lang === 'zh' ? '到期日（不需要）' : 'Expiry (not needed)') : (lang === 'zh' ? '第40日 — 未用完！' : 'Day 40 — rides unused!')}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">{L.ridesLeft}</div>
-              <div className="stat-value" style={{ color: stats.ridesLeft === 0 ? 'var(--green)' : stats.ridesLeft <= 2 ? 'var(--amber)' : 'var(--red)' }}>
-                {stats.ridesLeft}
-              </div>
-              <div className="stat-sub">{lang === 'zh' ? '共40程' : 'of 40 total'}</div>
             </div>
           </div>
 
@@ -7150,58 +7349,35 @@ function App({ onArchive }) {
         </div>
       </div>
 
-      {/* ─── Collapsible Settings ─── */}
-      <div className="section">
-        <button onClick={() => setShowSettings(prev => !prev)} style={{
-          width: '100%', padding: '10px 14px', borderRadius: 8,
-          border: '1px solid var(--border)', background: 'var(--card)',
-          color: 'var(--text)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-        }}>
-          <span>⚙️ {lang === 'zh' ? '設定' : 'Settings'}</span>
-          <span style={{ color: 'var(--text-secondary)' }}>{showSettings ? '▾' : '›'}</span>
-        </button>
-        {showSettings && (
-          <div style={{ marginTop: 10 }}>
+      {/* ─── Settings Bottom Sheet ─── */}
+      {showSettings && ReactDOM.createPortal(
+        <>
+          <div className="bottom-sheet-overlay" onClick={() => setShowSettings(false)} />
+          <div className="bottom-sheet">
+            <div className="bottom-sheet-handle" />
+            <div className="bottom-sheet-header">
+              <h3>⚙️ {lang === 'zh' ? '設定' : 'Settings'}</h3>
+              <button className="bottom-sheet-close" onClick={() => setShowSettings(false)}>✕</button>
+            </div>
+
             <div className="section-title">{L.workPattern}</div>
             <div className="toggle-group">
-              <button className={`toggle-btn ${workMode === 'office' ? 'active' : ''}`} onClick={() => setWorkMode('office')}>
-                {L.monFri}
-              </button>
-              <button className={`toggle-btn ${workMode === 'service' ? 'active' : ''}`} onClick={() => setWorkMode('service')}>
-                {L.monSat}
-              </button>
-              <button className={`toggle-btn ${workMode === 'custom' ? 'active' : ''}`} onClick={() => setWorkMode('custom')}>
-                {L.custom}
-              </button>
+              <button className={`toggle-btn ${workMode === 'office' ? 'active' : ''}`} onClick={() => setWorkMode('office')}>{L.monFri}</button>
+              <button className={`toggle-btn ${workMode === 'service' ? 'active' : ''}`} onClick={() => setWorkMode('service')}>{L.monSat}</button>
+              <button className={`toggle-btn ${workMode === 'custom' ? 'active' : ''}`} onClick={() => setWorkMode('custom')}>{L.custom}</button>
             </div>
 
             {workMode === 'custom' && (
               <div className="custom-days">
                 {(lang === 'zh' ? [
-                  { key: 1, label: '一' },
-                  { key: 2, label: '二' },
-                  { key: 3, label: '三' },
-                  { key: 4, label: '四' },
-                  { key: 5, label: '五' },
-                  { key: 6, label: '六' },
-                  { key: 0, label: '日' },
+                  { key: 1, label: '一' }, { key: 2, label: '二' }, { key: 3, label: '三' },
+                  { key: 4, label: '四' }, { key: 5, label: '五' }, { key: 6, label: '六' }, { key: 0, label: '日' },
                 ] : [
-                  { key: 1, label: 'Mon' },
-                  { key: 2, label: 'Tue' },
-                  { key: 3, label: 'Wed' },
-                  { key: 4, label: 'Thu' },
-                  { key: 5, label: 'Fri' },
-                  { key: 6, label: 'Sat' },
-                  { key: 0, label: 'Sun' },
+                  { key: 1, label: 'Mon' }, { key: 2, label: 'Tue' }, { key: 3, label: 'Wed' },
+                  { key: 4, label: 'Thu' }, { key: 5, label: 'Fri' }, { key: 6, label: 'Sat' }, { key: 0, label: 'Sun' },
                 ]).map(({ key, label }) => (
-                  <button
-                    key={key}
-                    className={`day-chip ${customDays[key] ? 'active' : ''}`}
-                    onClick={() => setCustomDays(prev => ({ ...prev, [key]: !prev[key] }))}
-                  >
-                    {label}
-                  </button>
+                  <button key={key} className={`day-chip ${customDays[key] ? 'active' : ''}`}
+                    onClick={() => setCustomDays(prev => ({ ...prev, [key]: !prev[key] }))}>{label}</button>
                 ))}
               </div>
             )}
@@ -7221,12 +7397,8 @@ function App({ onArchive }) {
 
             <div className="section-title">{L.ticketStartDate}</div>
             <div className="date-input-wrapper">
-              <input
-                type="date"
-                className="date-input"
-                value={startDateStr}
-                onChange={e => { setStartDateStr(e.target.value); setOverrides({}); }}
-              />
+              <input type="date" className="date-input" value={startDateStr}
+                onChange={e => { setStartDateStr(e.target.value); setOverrides({}); }} />
             </div>
 
             <div className="section-title">{L.weekStart}</div>
@@ -7234,9 +7406,17 @@ function App({ onArchive }) {
               <button className={`toggle-btn ${weekStart === 'sun' ? 'active' : ''}`} onClick={() => setWeekStart('sun')}>{lang === 'zh' ? '日' : 'Sun'}</button>
               <button className={`toggle-btn ${weekStart === 'mon' ? 'active' : ''}`} onClick={() => setWeekStart('mon')}>{lang === 'zh' ? '一' : 'Mon'}</button>
             </div>
+
+            <div className="section-title">{lang === 'zh' ? '主題' : 'Theme'}</div>
+            <div className="toggle-group" style={{ maxWidth: 240 }}>
+              <button className={`toggle-btn ${window.__mtrTheme === 'light' ? 'active' : ''}`} onClick={() => window.dispatchEvent(new CustomEvent('set-theme', { detail: 'light' }))}>{lang === 'zh' ? '☀️ 淺色' : '☀️ Light'}</button>
+              <button className={`toggle-btn ${window.__mtrTheme === 'dark' ? 'active' : ''}`} onClick={() => window.dispatchEvent(new CustomEvent('set-theme', { detail: 'dark' }))}>{lang === 'zh' ? '🌙 深色' : '🌙 Dark'}</button>
+              <button className={`toggle-btn ${window.__mtrTheme === 'auto' ? 'active' : ''}`} onClick={() => window.dispatchEvent(new CustomEvent('set-theme', { detail: 'auto' }))}>{lang === 'zh' ? '🔄 自動' : '🔄 Auto'}</button>
+            </div>
           </div>
-        )}
-      </div>
+        </>,
+        document.body
+      )}
 
       {/* ─── Archive button ─── */}
       {onArchive && startDate && (
@@ -7759,7 +7939,7 @@ function FavouriteQuickCard({ favourites, trainCache, onRefresh, onNavigate }) {
 
   useEffect(() => {
     if (favourites.length > 0) onRefresh(favourites);
-  }, []);
+  }, [favourites.length]);
 
   if (favourites.length === 0) return null;
 
@@ -7821,11 +8001,18 @@ function FavouriteQuickCard({ favourites, trainCache, onRefresh, onNavigate }) {
   );
 }
 
-function NextTrainPage({ favourites, toggleFavourite }) {
+function NextTrainPage({ favourites, toggleFavourite, initialStation, onStationConsumed }) {
   const lang = useLang();
   const L = I18N[lang] || I18N.en;
   const isZh = lang === 'zh';
   const [station, setStation] = useState('');
+
+  useEffect(() => {
+    if (initialStation) {
+      setStation(initialStation);
+      if (onStationConsumed) onStationConsumed();
+    }
+  }, [initialStation]);
   const [trainData, setTrainData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -7833,6 +8020,11 @@ function NextTrainPage({ favourites, toggleFavourite }) {
   const [countdown, setCountdown] = useState(30);
   const countdownRef = useRef(null);
   const refreshRef = useRef(null);
+  // Monotonic request token — incremented whenever station changes or a new
+  // fetch starts. Late-arriving responses compare their token to the current
+  // one and drop themselves if stale, preventing a slow previous-station
+  // response from overwriting fresh data.
+  const requestTokenRef = useRef(0);
 
   // Auto-refresh every 30 seconds when train data is showing
   const hasData = !!trainData;
@@ -7852,8 +8044,10 @@ function NextTrainPage({ favourites, toggleFavourite }) {
     }, 1000);
     refreshRef.current = setInterval(async () => {
       if (document.hidden) return;
+      const token = ++requestTokenRef.current;
       try {
         const results = await fetchNextTrain(station);
+        if (requestTokenRef.current !== token) return;
         setTrainData(results);
         setLastUpdated(new Date());
       } catch (_) {}
@@ -7885,16 +8079,20 @@ function NextTrainPage({ favourites, toggleFavourite }) {
 
   const handleCheck = useCallback(async () => {
     if (!station) return;
+    const token = ++requestTokenRef.current;
     setLoading(true);
     setError(null);
     setTrainData(null);
     try {
       const results = await fetchNextTrain(station);
+      if (requestTokenRef.current !== token) return;
       setTrainData(results);
       setLastUpdated(new Date());
     } catch (e) {
+      if (requestTokenRef.current !== token) return;
       setError(e.message || 'Failed to fetch');
     }
+    if (requestTokenRef.current !== token) return;
     setLoading(false);
   }, [station]);
 
@@ -7922,7 +8120,7 @@ function NextTrainPage({ favourites, toggleFavourite }) {
                 className="station-select"
                 style={{ flex: 1 }}
                 value={station}
-                onChange={e => { setStation(e.target.value); setTrainData(null); }}
+                onChange={e => { requestTokenRef.current++; setStation(e.target.value); setTrainData(null); }}
               >
                 <option value="">{L.selectStationPlaceholder}</option>
                 {MTR_LINES.map(({ line, stations }) => (
@@ -8383,23 +8581,23 @@ function GmbEtaPage() {
                   fontFamily: 'monospace', fontSize: 11, marginTop: 6, wordBreak: 'break-all',
                   cursor: 'pointer', position: 'relative'
                 }}
-                  onClick={() => {
+                  onClick={(ev) => {
                     const dir = window.location.pathname.replace(/\/[^/]*$/, '');
                     navigator.clipboard.writeText(`cd "${dir}" && python3 -m http.server 8080`);
-                    alert(isZh ? '已複製！在終端機貼上後按 Enter' : 'Copied! Paste in Terminal and press Enter');
+                    const btn = ev.currentTarget;
+                    const orig = btn.querySelector('.copy-hint');
+                    if (orig) { orig.textContent = isZh ? '已複製 ✓' : 'Copied ✓'; setTimeout(() => { orig.textContent = isZh ? '點擊複製' : 'click to copy'; }, 2000); }
                   }}
                 >
                   cd {window.location.pathname.replace(/\/[^/]*$/, '')} && python3 -m http.server 8080
-                  <span style={{ position: 'absolute', right: 8, top: 8, fontSize: 10, color: '#aaa' }}>
+                  <span className="copy-hint" style={{ position: 'absolute', right: 8, top: 8, fontSize: 10, color: '#aaa' }}>
                     {isZh ? '點擊複製' : 'click to copy'}
                   </span>
                 </div>
                 <div style={{ color: '#666', fontSize: 12, marginTop: 6, lineHeight: 1.6 }}>
                   {isZh
-                    ? '然後開啟 http://localhost:8080/mtr-city-saver.html'
-                    : 'Then open '}
-                  <a href="http://localhost:8080/mtr-city-saver.html"
-                    style={{ color: '#1976d2' }}>http://localhost:8080/mtr-city-saver.html</a>
+                    ? '然後於瀏覽器開啟 http://localhost:8080/'
+                    : 'Then open http://localhost:8080/ in your browser'}
                 </div>
               </div>
             ) : (
@@ -8428,7 +8626,7 @@ function GmbEtaPage() {
                   fontSize: 11, fontWeight: 600, cursor: loadingEtas ? 'not-allowed' : 'pointer'
                 }}
               >
-                {loadingEtas ? (isZh ? '載入中...' : 'Loading...') : '🔄 ' + (isZh ? '刷新' : 'Refresh')}
+                {loadingEtas ? (isZh ? '載入中...' : 'Loading...') : '🔄 ' + (isZh ? '更新' : 'Refresh')}
               </button>
             </div>
 
@@ -8892,6 +9090,8 @@ function HistoryPage({ history, onDelete, onEdit }) {
   const [histCalYear, setHistCalYear] = useState(null);
   const [histCalMonth, setHistCalMonth] = useState(null);
   const fileInputRef = React.useRef(null);
+  const [importToast, setImportToast] = useState(null);
+  const [importConfirmData, setImportConfirmData] = useState(null);
 
   const handleExport = React.useCallback(() => {
     try {
@@ -8927,19 +9127,14 @@ function HistoryPage({ history, onDelete, onEdit }) {
         const data = JSON.parse(ev.target.result);
         const keys = Object.keys(data);
         if (!keys.length || !keys.some(k => k.startsWith('mtr-cs-'))) {
-          alert(L.importError);
+          setImportToast({ type: 'error', msg: L.importError });
+          setTimeout(() => setImportToast(null), 3000);
           return;
         }
-        if (!confirm(L.importConfirm)) return;
-        keys.forEach(k => {
-          if (k.startsWith('mtr-cs-')) {
-            localStorage.setItem(k, data[k]);
-          }
-        });
-        alert(L.importSuccess);
-        window.location.reload();
+        setImportConfirmData(data);
       } catch {
-        alert(L.importError);
+        setImportToast({ type: 'error', msg: L.importError });
+        setTimeout(() => setImportToast(null), 3000);
       }
     };
     reader.readAsText(file);
@@ -8985,6 +9180,32 @@ function HistoryPage({ history, onDelete, onEdit }) {
 
   return (
     <div>
+      {importToast && (
+        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 10000, padding: '12px 24px', borderRadius: 10, background: importToast.type === 'error' ? 'var(--red, #dc0714)' : 'var(--green, #00a651)', color: '#fff', fontSize: 14, fontWeight: 600, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+          {importToast.msg}
+        </div>
+      )}
+      {importConfirmData && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: 'var(--card, #fff)', borderRadius: 14, padding: 24, width: '100%', maxWidth: 320, boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>📥</div>
+            <p style={{ fontSize: 15, color: 'var(--text, #333)', marginBottom: 20 }}>{L.importConfirm}</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setImportConfirmData(null)} style={{ flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', background: 'var(--grey-bg, #e8e8e8)', color: 'var(--text, #333)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                {isZh ? '取消' : 'Cancel'}
+              </button>
+              <button onClick={() => {
+                Object.keys(importConfirmData).forEach(k => { if (k.startsWith('mtr-cs-')) localStorage.setItem(k, importConfirmData[k]); });
+                setImportConfirmData(null);
+                setImportToast({ type: 'success', msg: L.importSuccess });
+                setTimeout(() => window.location.reload(), 1000);
+              }} style={{ flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', background: 'var(--primary, #dc0714)', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                {isZh ? '確認匯入' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="header">
         <div className="header-accent" />
         <div className="header-inner">
@@ -9006,10 +9227,6 @@ function HistoryPage({ history, onDelete, onEdit }) {
             <div className="history-stat-card">
               <div className="history-stat-val">{completedCount}</div>
               <div className="history-stat-label">{L.statsCompleted}</div>
-            </div>
-            <div className="history-stat-card">
-              <div className="history-stat-val">${totalSavings.toFixed(0)}</div>
-              <div className="history-stat-label">{L.statsSavings}</div>
             </div>
           </div>
         )}
@@ -9064,7 +9281,7 @@ function HistoryPage({ history, onDelete, onEdit }) {
                 <div>
                   <div className="history-record-detail">
                     <span>{L.histWorkMode}: {workModeLabel(rec.workMode)}</span>
-                    <span>{isZh ? '封存日' : 'Archived'}: {fmtDate(rec.endDate)}</span>
+                    <span>{isZh ? '儲存日' : 'Archived'}: {fmtDate(rec.endDate)}</span>
                     <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
                       {editingId === rec.id ? (
                         <>
@@ -9195,6 +9412,20 @@ function HistoryPage({ history, onDelete, onEdit }) {
 // ─── Root App with Tab Navigation ───
 function OnboardingOverlay({ lang, onDismiss }) {
   const L = I18N[lang] || I18N.en;
+  const todayStr = (() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  })();
+  const [startDate, setStartDate] = useState(todayStr);
+
+  const handleStart = () => {
+    try { localStorage.setItem('mtr-cs-startDateStr', startDate); } catch {}
+    onDismiss();
+  };
+
   return (
     <div className="onboarding-overlay">
       <div className="onboarding-logo">🚇</div>
@@ -9225,7 +9456,18 @@ function OnboardingOverlay({ lang, onDismiss }) {
         </div>
       </div>
 
-      <button className="onboarding-start" onClick={onDismiss}>
+      <div className="onboarding-date-section">
+        <div className="onboarding-date-label">{L.onboardingDateLabel}</div>
+        <input
+          type="date"
+          className="onboarding-date-input"
+          value={startDate}
+          max={todayStr}
+          onChange={e => setStartDate(e.target.value)}
+        />
+      </div>
+
+      <button className="onboarding-start" onClick={handleStart}>
         {L.onboardingStart}
       </button>
       <div className="onboarding-footer">{L.onboardingTip}</div>
@@ -9249,10 +9491,24 @@ class ErrorBoundary extends React.Component {
             style={{ padding: '10px 20px', border: '2px solid #0078d4', borderRadius: 8, background: 'white', color: '#0078d4', fontSize: 14, fontWeight: 600, cursor: 'pointer', marginRight: 8 }}>
             Reload / 重新載入
           </button>
-          <button onClick={() => { if (window.confirm('\u78BA\u5B9A\u8981\u6E05\u9664\u6240\u6709\u6578\u64DA\u4E26\u91CD\u65B0\u8F09\u5165\uFF1F\u6B64\u64CD\u4F5C\u7121\u6CD5\u5FA9\u539F\u3002\n\nClear all data and reload? This cannot be undone.')) { localStorage.clear(); location.reload(); } }}
-            style={{ padding: '10px 20px', border: '2px solid #dc0714', borderRadius: 8, background: 'white', color: '#dc0714', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-            Reset & Reload / 清除數據
-          </button>
+          {!this.state.confirmReset ? (
+            <button onClick={() => this.setState({ confirmReset: true })}
+              style={{ padding: '10px 20px', border: '2px solid #dc0714', borderRadius: 8, background: 'white', color: '#dc0714', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+              Reset & Reload / 清除數據
+            </button>
+          ) : (
+            <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+              <span style={{ fontSize: 12, color: '#dc0714' }}>確定？</span>
+              <button onClick={() => { localStorage.clear(); location.reload(); }}
+                style={{ padding: '8px 16px', border: 'none', borderRadius: 8, background: '#dc0714', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                確認清除
+              </button>
+              <button onClick={() => this.setState({ confirmReset: false })}
+                style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: 8, background: 'white', color: '#666', fontSize: 13, cursor: 'pointer' }}>
+                取消
+              </button>
+            </span>
+          )}
         </div>
       );
     }
@@ -9262,6 +9518,7 @@ class ErrorBoundary extends React.Component {
 
 function RootApp() {
   const [activeTab, setActiveTab] = useState('tracker');
+  const [pendingNextTrainStation, setPendingNextTrainStation] = useState(null);
   const [lang, setLang] = useState(() => { try { return localStorage.getItem('mtr-cs-lang') || 'zh'; } catch { return 'zh'; } });
   useEffect(() => { try { localStorage.setItem('mtr-cs-lang', lang); } catch {} }, [lang]);
 
@@ -9290,13 +9547,12 @@ function RootApp() {
   }, []);
 
   const navigateToNextTrain = useCallback((stationEn) => {
+    if (stationEn) setPendingNextTrainStation(stationEn);
     setActiveTab('nextTrain');
   }, []);
 
   // Ticket history
-  const [history, setHistory] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('mtr-cs-history') || '[]'); } catch { return []; }
-  });
+  const [history, setHistory] = useState(() => sanitizeHistory(readJSON('mtr-cs-history', [])));
   useEffect(() => { try { localStorage.setItem('mtr-cs-history', JSON.stringify(history)); } catch {} }, [history]);
 
   const archiveTicket = useCallback((record) => {
@@ -9338,7 +9594,15 @@ function RootApp() {
       return () => mq.removeEventListener('change', handler);
     }
     try { localStorage.setItem('mtr-cs-theme', theme); } catch {}
+    window.__mtrTheme = theme;
   }, [theme]);
+
+  // Listen for theme changes from Settings panel
+  useEffect(() => {
+    const handler = (e) => setTheme(e.detail);
+    window.addEventListener('set-theme', handler);
+    return () => window.removeEventListener('set-theme', handler);
+  }, []);
 
 
   const dismissOnboarding = useCallback(() => {
@@ -9352,11 +9616,6 @@ function RootApp() {
         <div style={{
           position: 'fixed', top: 8, right: 8, zIndex: 10001, display: 'flex', gap: 4
         }}>
-          <div className="theme-toggle-pill" aria-label="Theme switcher">
-            <button className={theme === 'light' ? 'active' : ''} onClick={() => setTheme('light')} title={lang === 'zh' ? '淺色' : 'Light'}>☀️</button>
-            <button className={theme === 'dark' ? 'active' : ''} onClick={() => setTheme('dark')} title={lang === 'zh' ? '深色' : 'Dark'}>🌙</button>
-            <button className={theme === 'auto' ? 'active' : ''} onClick={() => setTheme('auto')} title={lang === 'zh' ? '自動' : 'Auto'}>Auto</button>
-          </div>
           <button
             onClick={() => setLang(prev => prev === 'en' ? 'zh' : 'en')}
             style={{
@@ -9376,39 +9635,15 @@ function RootApp() {
   return (
     <LangContext.Provider value={lang}>
       <div>
-        {/* Floating language toggle + show guide button */}
-        <div style={{
-          position: 'fixed', top: 8, right: 8, zIndex: 1000, display: 'flex', gap: 4
-        }}>
-          <button
-            onClick={() => setShowOnboarding(true)}
-            aria-label="Help"
-            style={{
-              minWidth: 36, minHeight: 36, background: 'rgba(26,26,46,0.85)',
-              border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8,
-              color: 'white', fontSize: 14, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)'
-            }}
-          >?</button>
-          <div className="theme-toggle-pill" aria-label="Theme switcher">
-            <button className={theme === 'light' ? 'active' : ''} onClick={() => setTheme('light')} title={lang === 'zh' ? '淺色' : 'Light'}>☀️</button>
-            <button className={theme === 'dark' ? 'active' : ''} onClick={() => setTheme('dark')} title={lang === 'zh' ? '深色' : 'Dark'}>🌙</button>
-            <button className={theme === 'auto' ? 'active' : ''} onClick={() => setTheme('auto')} title={lang === 'zh' ? '自動' : 'Auto'}>Auto</button>
-          </div>
-          <button
-            onClick={() => setLang(prev => prev === 'en' ? 'zh' : 'en')}
-            style={{
-              minWidth: 36, minHeight: 36, background: 'rgba(26,26,46,0.85)',
-              border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8,
-              color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)'
-            }}
-          >{lang === 'en' ? '繁中' : 'EN'}</button>
+        {/* Global action buttons — visible on all tabs */}
+        <div className="header-actions" style={{ position: 'fixed', top: 18, right: 16, zIndex: 101 }}>
+          <button onClick={() => setShowOnboarding(true)} title="Help">?</button>
+          <button onClick={() => setLang(prev => prev === 'en' ? 'zh' : 'en')} style={{ fontSize: 10, fontWeight: 700 }}>{lang === 'zh' ? 'EN' : '繁'}</button>
+          <button onClick={() => window.dispatchEvent(new Event('open-settings'))} title="Settings">⚙️</button>
         </div>
 
-        {activeTab === 'tracker' && <>
+        {/* App is always mounted so its settings event listener stays active (portal renders to body) */}
+        <div style={activeTab !== 'tracker' ? { display: 'none' } : undefined}>
           <App onArchive={archiveTicket} />
           <FavouriteQuickCard
             favourites={favourites}
@@ -9416,10 +9651,10 @@ function RootApp() {
             onRefresh={refreshFavouriteTrains}
             onNavigate={navigateToNextTrain}
           />
-        </>}
+        </div>
         {activeTab === 'compare' && <FareComparisonPage />}
         {activeTab === 'history' && <HistoryPage history={history} onDelete={deleteHistoryRecord} onEdit={editHistoryRecord} />}
-        {activeTab === 'nextTrain' && <NextTrainPage favourites={favourites} toggleFavourite={toggleFavourite} />}
+        {activeTab === 'nextTrain' && <NextTrainPage favourites={favourites} toggleFavourite={toggleFavourite} initialStation={pendingNextTrainStation} onStationConsumed={() => setPendingNextTrainStation(null)} />}
 
         <div className="disclaimer-footer">
           {lang === 'zh'
